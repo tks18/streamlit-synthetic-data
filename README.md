@@ -67,9 +67,9 @@ Perfect for:
 ## ⚡ Installation
 
 ```bash
-git clone https://github.com/<your-repo>/shans-dataverse.git
-cd shans-dataverse
-pip install -r requirements.txt
+git clone https://github.com/tks18/streamlit-synthetic-data
+cd streamlit-synthetic-data
+uv sync
 ```
 
 ### Requirements
