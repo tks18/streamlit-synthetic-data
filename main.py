@@ -1,4 +1,4 @@
-from unittest.mock import DEFAULT
+from narwhals import col
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -18,7 +18,8 @@ SORTABLES_AVAILABLE = True
 # ----------------------------
 # Config & folders
 # ----------------------------
-APP_TITLE = "Synthetic Data Cockpit — Audit + Ops (Enhanced)"
+APP_MAIN_TITLE = "Shan's Dataverse"
+APP_TITLE = "📈 Enhanced Data Cockpit — Finance + Ops"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROFILES_DIR = os.path.join(BASE_DIR, "profiles")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
@@ -135,7 +136,7 @@ ALLOWED_MODULES = {
 class VectorSafeVisitor(ast.NodeVisitor):
     """Allow arithmetic, calls, names, attributes (only for allowed modules), subscript, tuples, lists."""
     ALLOWED_NODES = (
-        ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Div, ast.Name,
+        ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant, ast.Div, ast.Name, ast.Mult, ast.Add, ast.Sub,
         ast.Load, ast.Call, ast.Attribute, ast.Subscript, ast.Index, ast.Slice,
         ast.Tuple, ast.List, ast.Dict, ast.BoolOp, ast.Compare, ast.IfExp
     )
@@ -643,8 +644,10 @@ if 'profiles_cache' not in st.session_state:
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-st.set_page_config(page_title=APP_TITLE, layout='wide')
-st.title(APP_TITLE)
+st.set_page_config(page_title=APP_MAIN_TITLE,
+                   layout='wide', page_icon=':sparkles:')
+st.title(APP_MAIN_TITLE)
+st.subheader(APP_TITLE, divider=True)
 
 # --- Sidebar ---
 with st.sidebar:
@@ -704,6 +707,90 @@ with st.sidebar:
 # --- Main Layout: Tabs ---
 DATASET_OPTIONS = ['Revenue_Invoices', 'Debtors_Aggregated', 'PPE_Register',
                    'Purchases', 'Inventory', 'Customer_Master', 'Vendor_Master', 'Operational']
+DATASET_COL_KEYS = DEFAULT_SCHEMAS = {
+    "Customer_Master": {
+        "CustomerID": "str",
+        "CustomerName": "str",
+        "Country": "str",
+        "Region": "str",
+        "CustomerSegment": "str",
+        "Industry": "str"
+    },
+    "Vendor_Master": {
+        "VendorID": "str",
+        "VendorName": "str",
+        "Country": "str",
+        "Region": "str",
+        "VendorType": "str",
+        "Industry": "str"
+    },
+    "Revenue_Invoices": {
+        "Industry": "str",
+        "Product": "str",
+        "Date": "date",
+        "InvoiceID": "str",
+        "CustomerID": "str",
+        "CustomerSegment": "str",
+        "Country": "str",
+        "Region": "str",
+        "InvoiceAmount": "float",
+        "DueDate": "date",
+        "PaymentDate": "date",
+        "PaidAmount": "float",
+        "PaymentStatus": "str",
+        "Outstanding": "float"
+    },
+    "Debtors_Aggregated": {
+        "PeriodEnd": "date",
+        "CustomerID": "str",
+        "CustomerSegment": "str",
+        "Country": "str",
+        "Region": "str",
+        "OpeningBalance": "float",
+        "Credit": "float",
+        "Collections": "float",
+        "ClosingBalance": "float",
+        "DSO_Est": "float"
+    },
+    "PPE_Register": {
+        "AssetID": "str",
+        "AssetDesc": "str",
+        "AcquisitionDate": "date",
+        "Cost": "float",
+        "UsefulLifeYears": "int",
+        "AccumulatedDepreciation": "float",
+        "CarryingValue": "float",
+        "Country": "str",
+        "Region": "str",
+        "Department": "str"
+    },
+    "Purchases": {
+        "Industry": "str",
+        "Product": "str",
+        "Date": "date",
+        "PurchaseInvoiceID": "str",
+        "VendorID": "str",
+        "VendorType": "str",
+        "Country": "str",
+        "Region": "str",
+        "PurchaseAmount": "float"
+    },
+    "Inventory": {
+        "Product": "str",
+        "Date": "date",
+        "OpeningStock": "int",
+        "Receipts": "int",
+        "Sales": "int",
+        "ClosingStock": "int",
+        "InventoryValue": "float",
+        "Region": "str"
+    },
+    "Operational": {
+        "Industry": "str",
+        "Date": "date",
+        "Region": "str",
+    }
+}
 tab1, tab2, tab3 = st.tabs(
     ['Custom Columns', 'Scenarios', 'Generate & Download'])
 
@@ -716,7 +803,10 @@ with tab1:
                               options=DATASET_OPTIONS, key="ds_selector")
 
     lst = get_dataset_config(ds_to_edit)
-    st.subheader(f'Columns for `{ds_to_edit}`')
+    st.subheader(f'Default Columns for `{ds_to_edit}`')
+    col_info = pd.DataFrame([DEFAULT_SCHEMAS[ds_to_edit]])
+    st.dataframe(col_info, hide_index=True)
+    st.subheader(f'Custom Columns for `{ds_to_edit}`')
 
     if not lst:
         st.info(
@@ -750,9 +840,10 @@ with tab1:
     # --- ADD/UPDATE FORM ---
     st.markdown('---')
     st.subheader('Add / Update Column')
+    col_type = st.selectbox(
+        'Type', ['formula', 'range', 'choice'], key='new_col_type')
     with st.form('addcol', border=True):
         col_name = st.text_input('Column name')
-        col_type = st.selectbox('Type', ['formula', 'range', 'choice'])
 
         if col_type == 'formula':
             st.markdown(

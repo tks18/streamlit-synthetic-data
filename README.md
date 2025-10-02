@@ -8,7 +8,7 @@
 > Generate robust, configurable, and industry-ready synthetic datasets for finance, analytics, and operations — with drag-and-drop column design, formula engines, and reusable profiles.
 
 ---
-App Link - [Shan's Dataverse](https://github.com/tks18/shans-dataverse)
+App Link - [Shan's Dataverse](https://shan-dataverse.streamlit.app/)
 
 ## ✨ What is Shan’s Dataverse?
 
