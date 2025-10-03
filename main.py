@@ -579,10 +579,15 @@ def load_profile_from_disk(fname):
 # ----------------------------
 # Initialize session state
 # ----------------------------
-if 'custom_config_ordered' not in st.session_state:
-    st.session_state.custom_config_ordered = {}
-if 'scenarios' not in st.session_state:
-    st.session_state.scenarios = []
+
+if "load_profile" in st.session_state:
+    load_profile_from_disk(st.session_state.pop("load_profile"))
+else:
+    for prof_item in profile_keys:
+        state_key, _, alt_result = prof_item
+        if state_key not in st.session_state:
+            st.session_state[state_key] = alt_result
+
 if 'profiles_cache' not in st.session_state:
     st.session_state.profiles_cache = list_profiles_on_disk()
 
@@ -597,29 +602,32 @@ st.subheader(APP_TITLE, divider=True)
 # --- Sidebar ---
 with st.sidebar:
     st.header('Core Settings')
-    industry = st.selectbox('Industry', list(INDUSTRY_KPIS.keys()))
+    industry = st.selectbox('Industry', list(
+        INDUSTRY_KPIS.keys()), key='key_industry')
     products_str = INDUSTRY_KPIS.get(industry, {}).get(
         "products", ["Product A", "Product B"])
     products = st.multiselect(
-        'Products', options=products_str, default=products_str, accept_new_options=True)
+        'Products', options=products_str, default=products_str, accept_new_options=True, key='key_products')
 
     country_choices = st.multiselect('Country choices', options=list(
-        DEFAULT_REGIONS.keys()), default=list(DEFAULT_REGIONS.keys()), accept_new_options=True)
+        DEFAULT_REGIONS.keys()), default=list(DEFAULT_REGION_CHOICE.keys()), accept_new_options=True, key='key_countries')
     start_date = st.date_input(
-        'Start Date', value=pd.to_datetime('2024-04-01').date())
+        'Start Date', key='key_start_date')
     end_date = st.date_input(
-        'End Date', value=pd.to_datetime('2025-03-31').date())
+        'End Date', key='key_end_date')
     freq = st.selectbox(
-        'Frequency', ['ME', 'W', 'D'], help="ME=Month-end, W=Week-end, D=Day")
+        'Frequency', ['ME', 'W', 'D'], help="ME=Month-end, W=Week-end, D=Day", key='key_freq')
     seed = int(st.number_input('Seed', value=42))
     faker_locale = st.selectbox(
-        'Faker locale', ['en_US', 'en_IN', 'hi_IN', 'ta_IN', 'en_GB', 'fr_FR'])
+        'Faker locale', ['en_US', 'en_IN', 'en_GB', 'fr_FR'], key='key_faker_locale')
     st.markdown("---")
     st.header('Outliers')
-    outlier_freq = st.slider('Outlier Frequency', 0.0, 0.2, 0.02)
-    outlier_mag = st.slider('Outlier Magnitude', 1.5, 8.0, 3.0)
+    outlier_freq = st.slider('Outlier Frequency', 0.0,
+                             0.2, 0.02, key='key_outlier_freq')
+    outlier_mag = st.slider('Outlier Magnitude', 1.5,
+                            8.0, 3.0, key='key_outlier_mag')
     st.markdown('---')
-    st.header('Profiles & Templates')
+    st.header('Profiles')
     new_profile_name = st.text_input('Save current config as profile', '')
     if st.button('Save Profile'):
         if new_profile_name.strip():
@@ -634,20 +642,16 @@ with st.sidebar:
                             ''] + st.session_state.profiles_cache)
     if st.button('Load Profile'):
         if prof_sel:
-            load_profile_from_disk(prof_sel)
+            st.session_state["load_profile"] = prof_sel
             st.success(f'Loaded {prof_sel}')
             st.rerun()
         else:
             st.error('Select a profile file')
 
-    templ_sel = st.selectbox('Load template', [''] + list_templates())
-    if st.button('Load Template'):
-        if templ_sel:
-            load_template(templ_sel)
-            st.success(f'Loaded template {templ_sel}')
-            st.rerun()
-        else:
-            st.error('Select a template')
+    if st.button('Prepare Profile for Download'):
+        profile_dump = prepare_profile_paylod()
+        st.download_button('Download Profile',
+                           json.dumps(profile_dump), 'profile_dump.json', 'application/json')
 
 # --- Main Layout: Tabs ---
 DATASET_OPTIONS = ['Revenue_Invoices', 'Debtors_Aggregated', 'PPE_Register',
