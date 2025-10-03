@@ -24,99 +24,23 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROFILES_DIR = os.path.join(BASE_DIR, "profiles")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 os.makedirs(PROFILES_DIR, exist_ok=True)
-os.makedirs(TEMPLATES_DIR, exist_ok=True)
 
 # ----------------------------
-# Default Data Schemas (Added to make the script runnable)
+# Default Data Schemas
 # ----------------------------
 DEFAULT_START_DATE = "2020-01-01"
 DEFAULT_END_DATE = "2022-12-31"
-INDUSTRY_KPIS = {
-    "IT Services": {
-        "products": ["Cloud Migration", "Managed Services", "Software Dev"],
-        "operational": ["TicketsResolved", "ProjectHours", "ServerUptimePct"]
-    },
-    "Steel": {
-        "products": ["TMT Bars", "Steel Coils", "Structural Steel"],
-        "operational": ["CoalUsed", "EnergyUsed", "ProductionTons", "FurnaceTemp"]
-    },
-    "Pharma": {
-        "products": ["API-A", "Formulation-X", "Vaccine-Y"],
-        "operational": ["BatchYield", "ContaminationEvents", "R&D_Hours"]
-    }
-}
 
-DEFAULT_REGIONS = {
-    "India": ["Karnataka", "Maharashtra", "Delhi", "Tamil Nadu"],
-    "USA": ["California", "Texas", "New York"],
-    "Germany": ["Bavaria", "Berlin", "Hesse"]
-}
+# Load JSON
+with open(INDUSTRY_KPIS_DIR, "r", encoding="utf-8") as f:
+    INDUSTRY_KPIS = json.load(f)
 
-# ----------------------------
-# Write default templates if not present
-# ----------------------------
-DEFAULT_TEMPLATES = {
-    "it_o2c": {
-        "description": "IT Services: Revenue + Debtors + ProjectHours",
-        "custom_config": {
-            "Revenue_Invoices": {
-                "InvoiceType": {"type": "choice", "options": ["Standard", "Credit"]},
-                "Currency": {"type": "choice", "options": ["INR", "USD"]},
-                "DiscountPct": {"type": "range", "min": 0, "max": 5}
-            },
-            "IT_Services_Operational": {
-                "ProjectHours": {"type": "range", "min": 1, "max": 12},
-                "TicketsResolved": {"type": "range", "min": 0, "max": 50}
-            }
-        },
-        "scenarios": []
-    },
-    "steel_supply_shock": {
-        "description": "Steel: Add coal usage KPIs and a supply-shock scenario",
-        "custom_config": {
-            "Steel_Operational": {
-                "CoalUsed": {"type": "range", "min": 1000, "max": 5000},
-                "EnergyUsed": {"type": "range", "min": 500, "max": 2000}
-            }
-        },
-        "scenarios": [
-            {"name": "Coal supply shock", "type": "shock", "target_dataset": "Operational", "target_column": "CoalUsed", "start": str(
-                datetime(2024, 12, 1).date()), "end": str(datetime(2024, 12, 31).date()), "magnitude": 0.6, "mode": "multiplier", "seed": 42}
-        ]
-    },
-    "pharma_seasonal_fraud": {
-        "description": "Pharma: Seasonal sales and fraudulent expense claims",
-        "custom_config": {
-            "Revenue_Invoices": {
-                "BatchID": {"type": "choice", "options": ["B01", "B02", "B03"]}
-            }
-        },
-        "scenarios": [
-            {
-                "name": "Winter Sales Spike",
-                "type": "seasonal",
-                "target_dataset": "Revenue_Invoices",
-                "target_column": "InvoiceAmount",
-                "month_multipliers": {"11": 1.3, "12": 1.6, "1": 1.4}
-            },
-            {
-                "name": "Fraudulent Purchases",
-                "type": "fraud_outlier",
-                "target_dataset": "Purchases",
-                "target_column": "PurchaseAmount",
-                "pct": 0.02,
-                "multiplier": 10.0,
-                "seed": 123
-            }
-        ]
-    }
-}
+with open(REGIONS_DIR, "r", encoding="utf-8") as f:
+    DEFAULT_REGIONS = json.load(f)
 
-for k, v in DEFAULT_TEMPLATES.items():
-    p = os.path.join(TEMPLATES_DIR, f"{k}.json")
-    if not os.path.exists(p):
-        with open(p, "w") as fh:
-            json.dump(v, fh, indent=2)
+# Default Region Choices
+DEFAULT_REGION_CHOICE = {
+    "India": DEFAULT_REGIONS["India"], "United States": DEFAULT_REGIONS["United States"], "United Kingdom": DEFAULT_REGIONS["United Kingdom"]}
 
 # ----------------------------
 # Allowed modules for formulas
