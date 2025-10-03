@@ -346,29 +346,36 @@ def generate_inventory_snapshots(products, start, end, freq, seed=42):
     return pd.DataFrame(rows)
 
 
-def generate_operational_dataset(industry, start, end, freq, kpi_template=None, faker=None, seed=42, rows_per_period=50):
+def generate_operational_dataset(industry, start, end, freq, kpi_template=None, countries=None, default_regions=None, faker=None, seed=42, rows_per_period=50):
     faker = faker or set_seed(seed)
     dates = date_range(start, end, freq)
+    countries = countries or ["India"]
+    default_regions = default_regions or {"India": ["Karnataka"]}
     rows = []
     if not kpi_template:
-        kpi_template = {}
-        ops_kpis = INDUSTRY_KPIS.get(industry, {}).get("operational", [])
-        for kpi in ops_kpis:
-            kpi_template[kpi] = {"type": "range", "min": 1, "max": 100}
+        kpi_template = INDUSTRY_KPIS.get(industry, {}).get("operational", [])
 
     for d in dates:
         for _ in range(rows_per_period):
-            row = {"Industry": industry, "Date": d.date(), "Region": np.random.choice([
-                "North", "South", "West", "East"])}
-            for k, cfg in kpi_template.items():
+            country = np.random.choice(countries)
+            region = np.random.choice(
+                default_regions.get(country, ["Unknown"]))
+            row = {"Industry": industry, "Date": d.date(
+            ), "Country": country, "Region": region}
+            for cfg in kpi_template:
+                cname = cfg.get("name", "Unknown")
                 ctype = cfg.get("type", "range")
                 if ctype == "choice":
-                    row[k] = np.random.choice(cfg.get("options", ["unknown"]))
+                    row[cname] = np.random.choice(
+                        cfg.get("options", ["unknown"]))
                 elif ctype == "range":
-                    row[k] = float(np.random.uniform(
-                        cfg.get("min", 0), cfg.get("max", 1)))
+                    allow_float = cfg.get("float", True)
+                    row[cname] = float(np.random.uniform(
+                        cfg.get("min", 0), cfg.get("max", 1))) if allow_float else int(np.random.randint(
+                            cfg.get("min", 0), cfg.get("max", 100)
+                        ))
                 else:
-                    row[k] = np.nan
+                    row[cname] = np.nan
             rows.append(row)
     return pd.DataFrame(rows)
 
@@ -378,11 +385,11 @@ def generate_operational_dataset(industry, start, end, freq, kpi_template=None, 
 
 
 def get_dataset_config(ds):
-    return st.session_state.custom_config_ordered.get(ds, [])
+    return st.session_state.key_custom_columns.get(ds, [])
 
 
 def set_dataset_config(ds, ordered_list):
-    st.session_state.custom_config_ordered[ds] = ordered_list
+    st.session_state.key_custom_columns[ds] = ordered_list
 
 
 def add_or_update_column(ds, col_name, col_cfg):
@@ -653,95 +660,12 @@ with st.sidebar:
 # --- Main Layout: Tabs ---
 DATASET_OPTIONS = ['Revenue_Invoices', 'Debtors_Aggregated', 'PPE_Register',
                    'Purchases', 'Inventory', 'Customer_Master', 'Vendor_Master', 'Operational']
-DATASET_COL_KEYS = DEFAULT_SCHEMAS = {
-    "Customer_Master": {
-        "CustomerID": "str",
-        "CustomerName": "str",
-        "Country": "str",
-        "Region": "str",
-        "CustomerSegment": "str",
-        "Industry": "str"
-    },
-    "Vendor_Master": {
-        "VendorID": "str",
-        "VendorName": "str",
-        "Country": "str",
-        "Region": "str",
-        "VendorType": "str",
-        "Industry": "str"
-    },
-    "Revenue_Invoices": {
-        "Industry": "str",
-        "Product": "str",
-        "Date": "date",
-        "InvoiceID": "str",
-        "CustomerID": "str",
-        "CustomerSegment": "str",
-        "Country": "str",
-        "Region": "str",
-        "InvoiceAmount": "float",
-        "DueDate": "date",
-        "PaymentDate": "date",
-        "PaidAmount": "float",
-        "PaymentStatus": "str",
-        "Outstanding": "float"
-    },
-    "Debtors_Aggregated": {
-        "PeriodEnd": "date",
-        "CustomerID": "str",
-        "CustomerSegment": "str",
-        "Country": "str",
-        "Region": "str",
-        "OpeningBalance": "float",
-        "Credit": "float",
-        "Collections": "float",
-        "ClosingBalance": "float",
-        "DSO_Est": "float"
-    },
-    "PPE_Register": {
-        "AssetID": "str",
-        "AssetDesc": "str",
-        "AcquisitionDate": "date",
-        "Cost": "float",
-        "UsefulLifeYears": "int",
-        "AccumulatedDepreciation": "float",
-        "CarryingValue": "float",
-        "Country": "str",
-        "Region": "str",
-        "Department": "str"
-    },
-    "Purchases": {
-        "Industry": "str",
-        "Product": "str",
-        "Date": "date",
-        "PurchaseInvoiceID": "str",
-        "VendorID": "str",
-        "VendorType": "str",
-        "Country": "str",
-        "Region": "str",
-        "PurchaseAmount": "float"
-    },
-    "Inventory": {
-        "Product": "str",
-        "Date": "date",
-        "OpeningStock": "int",
-        "Receipts": "int",
-        "Sales": "int",
-        "ClosingStock": "int",
-        "InventoryValue": "float",
-        "Region": "str"
-    },
-    "Operational": {
-        "Industry": "str",
-        "Date": "date",
-        "Region": "str",
-    }
-}
+
 tab1, tab2, tab3 = st.tabs(
     ['Custom Columns', 'Scenarios', 'Generate & Download'])
 
 # ----------------------------
-# Tab 1: Custom Columns GUI (with Drag-and-Drop)
+# Tab 1: Custom Columns GUI
 # ----------------------------
 with tab1:
     st.header('Custom Columns')
@@ -749,9 +673,6 @@ with tab1:
                               options=DATASET_OPTIONS, key="ds_selector")
 
     lst = get_dataset_config(ds_to_edit)
-    st.subheader(f'Default Columns for `{ds_to_edit}`')
-    col_info = pd.DataFrame([DEFAULT_SCHEMAS[ds_to_edit]])
-    st.dataframe(col_info, hide_index=True)
     st.subheader(f'Custom Columns for `{ds_to_edit}`')
 
     if not lst:
@@ -824,24 +745,24 @@ with tab2:
     st.info('Scenarios are applied in order during data generation.')
 
     st.subheader('Manage Scenarios')
-    if not st.session_state.scenarios:
+    if not st.session_state.key_scenarios:
         st.write(
-            'No scenarios configured. Add one below or load a template from the sidebar.')
+            'No scenarios configured. Add one below or load a profile from the sidebar.')
 
-    for i, s in enumerate(st.session_state.scenarios):
+    for i, s in enumerate(st.session_state.key_scenarios):
         expander_title = f"**{i+1}. {s.get('name', 'Untitled')}** (`{s.get('type')}` on `{s.get('target_dataset')}.{s.get('target_column')}`)"
         with st.expander(expander_title):
             st.json(s)
             if st.button(f'Delete Scenario {i+1}', key=f'delscn{i}'):
-                st.session_state.scenarios.pop(i)
+                st.session_state.key_scenarios.pop(i)
                 st.rerun()
 
     st.markdown('---')
     st.subheader('Add New Scenario')
+    s_type = st.selectbox(
+        'Type', ['shock', 'seasonal', 'fraud_outlier', 'correlation'])
     with st.form('add_scenario', border=True):
         s_name = st.text_input('Scenario name')
-        s_type = st.selectbox(
-            'Type', ['shock', 'seasonal', 'fraud_outlier', 'correlation'])
         s_target_ds = st.selectbox('Target dataset', DATASET_OPTIONS)
         s_target_col = st.text_input('Target column', 'InvoiceAmount')
         s_seed = int(st.number_input('Scenario Seed', value=seed))
@@ -883,7 +804,7 @@ with tab2:
                 sc = {'name': s_name or f'scn_{s_type}', 'type': s_type,
                       'target_dataset': s_target_ds, 'target_column': s_target_col, 'seed': s_seed}
                 sc.update(sc_details)
-                st.session_state.scenarios.append(sc)
+                st.session_state.key_scenarios.append(sc)
                 st.success('Scenario added.')
                 st.rerun()
 
@@ -959,14 +880,12 @@ with tab3:
 
             if 'Operational' in datasets_to_gen:
                 op = generate_operational_dataset(
-                    industry, start_date, end_date, freq, None, faker, seed+10)
-                config_key = f"{industry}_Operational" if get_dataset_config(
-                    f"{industry}_Operational") else 'Operational'
+                    industry, start_date, end_date, freq, None, country_choices, DEFAULT_REGIONS, faker, seed+10)
                 generated['Operational'] = apply_custom_columns_vectorized(
-                    op, config_key)
+                    op, 'Operational')
 
             # Apply scenarios
-            for sc in st.session_state.scenarios:
+            for sc in st.session_state.key_scenarios:
                 target_ds = sc.get('target_dataset')
                 if target_ds in generated:
                     df = generated[target_ds]
@@ -998,7 +917,9 @@ with tab3:
         with zipfile.ZipFile(zip_buffer, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
             for name, df in st.session_state.generated_data.items():
                 st.subheader(f"`{name}` — {len(df):,} rows")
-                st.dataframe(df.head(100))
+                st.dataframe(df.head(50))
+                st.download_button(f'⬇️ Download {name}', df.to_csv(index=False).encode(
+                    'utf-8'), file_name=f"{name}.csv", use_container_width=True)
                 csv = df.to_csv(index=False).encode('utf-8')
                 zf.writestr(f"{name}.csv", csv)
 
