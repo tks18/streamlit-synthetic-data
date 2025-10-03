@@ -1,0 +1,585 @@
+{
+    "IT Services": {
+        "products": [
+            "Cloud Migration",
+            "Managed Services",
+            "Custom Software",
+            "Cybersecurity Solutions",
+            "AI/ML Analytics"
+        ],
+        "operational": [
+            {
+                "name": "TicketsResolved",
+                "type": "range",
+                "min": 50,
+                "max": 500,
+                "float": false
+            },
+            {
+                "name": "ProjectHours",
+                "type": "range",
+                "min": 1000,
+                "max": 10000,
+                "float": false
+            },
+            {
+                "name": "ServerUptimePct",
+                "type": "range",
+                "min": 95,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "DefectRate",
+                "type": "range",
+                "min": 0,
+                "max": 10,
+                "float": true
+            },
+            {
+                "name": "UtilizationRate",
+                "type": "range",
+                "min": 60,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Steel": {
+        "products": [
+            "TMT Bars",
+            "Steel Coils",
+            "Structural Steel",
+            "Alloy Sheets"
+        ],
+        "operational": [
+            {
+                "name": "CoalUsed",
+                "type": "range",
+                "min": 1000,
+                "max": 10000,
+                "float": false
+            },
+            {
+                "name": "EnergyUsed",
+                "type": "range",
+                "min": 5000,
+                "max": 50000,
+                "float": false
+            },
+            {
+                "name": "ProductionTons",
+                "type": "range",
+                "min": 100,
+                "max": 2000,
+                "float": false
+            },
+            {
+                "name": "FurnaceTemp",
+                "type": "range",
+                "min": 1200,
+                "max": 1700,
+                "float": true
+            },
+            {
+                "name": "ScrapRate",
+                "type": "range",
+                "min": 0,
+                "max": 5,
+                "float": true
+            }
+        ]
+    },
+    "Pharma": {
+        "products": [
+            "API-A",
+            "Formulation-X",
+            "Vaccine-Y",
+            "OTC-Drug-Z"
+        ],
+        "operational": [
+            {
+                "name": "BatchYield",
+                "type": "range",
+                "min": 80,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "ContaminationEvents",
+                "type": "range",
+                "min": 0,
+                "max": 5,
+                "float": false
+            },
+            {
+                "name": "R&D_Hours",
+                "type": "range",
+                "min": 1000,
+                "max": 20000,
+                "float": false
+            },
+            {
+                "name": "ClinicalTrials",
+                "type": "range",
+                "min": 1,
+                "max": 20,
+                "float": false
+            },
+            {
+                "name": "RegulatoryFilings",
+                "type": "range",
+                "min": 0,
+                "max": 10,
+                "float": false
+            }
+        ]
+    },
+    "Retail": {
+        "products": [
+            "Apparel",
+            "Electronics",
+            "Groceries",
+            "Furniture"
+        ],
+        "operational": [
+            {
+                "name": "Footfall",
+                "type": "range",
+                "min": 100,
+                "max": 10000,
+                "float": false
+            },
+            {
+                "name": "SalesConversionRate",
+                "type": "range",
+                "min": 1,
+                "max": 50,
+                "float": true
+            },
+            {
+                "name": "StockOutEvents",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": false
+            },
+            {
+                "name": "ReturnPct",
+                "type": "range",
+                "min": 0,
+                "max": 20,
+                "float": true
+            },
+            {
+                "name": "AvgBillingTime",
+                "type": "range",
+                "min": 1,
+                "max": 15,
+                "float": true
+            }
+        ]
+    },
+    "Automotive": {
+        "products": [
+            "Passenger Cars",
+            "EV Vehicles",
+            "Trucks",
+            "Motorcycles"
+        ],
+        "operational": [
+            {
+                "name": "UnitsProduced",
+                "type": "range",
+                "min": 100,
+                "max": 10000,
+                "float": false
+            },
+            {
+                "name": "DefectRate",
+                "type": "range",
+                "min": 0,
+                "max": 5,
+                "float": true
+            },
+            {
+                "name": "BatteryRangeTest",
+                "type": "range",
+                "min": 100,
+                "max": 600,
+                "float": true
+            },
+            {
+                "name": "RecallEvents",
+                "type": "range",
+                "min": 0,
+                "max": 50,
+                "float": false
+            },
+            {
+                "name": "PlantUtilization",
+                "type": "range",
+                "min": 60,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Banking": {
+        "products": [
+            "Retail Loans",
+            "Credit Cards",
+            "Corporate Lending",
+            "Wealth Mgmt"
+        ],
+        "operational": [
+            {
+                "name": "NPA_Ratio",
+                "type": "range",
+                "min": 0,
+                "max": 10,
+                "float": true
+            },
+            {
+                "name": "TransactionsProcessed",
+                "type": "range",
+                "min": 10000,
+                "max": 1000000,
+                "float": false
+            },
+            {
+                "name": "CustomerComplaints",
+                "type": "range",
+                "min": 0,
+                "max": 500,
+                "float": false
+            },
+            {
+                "name": "KYC_Compliance",
+                "type": "range",
+                "min": 80,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "ATM_Uptime",
+                "type": "range",
+                "min": 90,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Power": {
+        "products": [
+            "Thermal Power",
+            "Solar Power",
+            "Wind Power",
+            "Hydro Power"
+        ],
+        "operational": [
+            {
+                "name": "PLF (Plant Load Factor)",
+                "type": "range",
+                "min": 40,
+                "max": 90,
+                "float": true
+            },
+            {
+                "name": "OutageHours",
+                "type": "range",
+                "min": 0,
+                "max": 500,
+                "float": false
+            },
+            {
+                "name": "TransmissionLossPct",
+                "type": "range",
+                "min": 0,
+                "max": 15,
+                "float": true
+            },
+            {
+                "name": "CoalStockDays",
+                "type": "range",
+                "min": 0,
+                "max": 60,
+                "float": false
+            },
+            {
+                "name": "RenewablePct",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Telecom": {
+        "products": [
+            "Prepaid Plans",
+            "Postpaid Plans",
+            "Fiber Broadband",
+            "Enterprise Solutions"
+        ],
+        "operational": [
+            {
+                "name": "DroppedCalls",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": false
+            },
+            {
+                "name": "AvgDataSpeed",
+                "type": "range",
+                "min": 1,
+                "max": 500,
+                "float": true
+            },
+            {
+                "name": "NetworkAvailability",
+                "type": "range",
+                "min": 90,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "NewSubscriptions",
+                "type": "range",
+                "min": 1000,
+                "max": 100000,
+                "float": false
+            },
+            {
+                "name": "ChurnRate",
+                "type": "range",
+                "min": 0,
+                "max": 20,
+                "float": true
+            }
+        ]
+    },
+    "FMCG": {
+        "products": [
+            "Personal Care",
+            "Packaged Food",
+            "Beverages",
+            "Home Care"
+        ],
+        "operational": [
+            {
+                "name": "UnitsSold",
+                "type": "range",
+                "min": 1000,
+                "max": 100000,
+                "float": false
+            },
+            {
+                "name": "MarketShare",
+                "type": "range",
+                "min": 1,
+                "max": 50,
+                "float": true
+            },
+            {
+                "name": "AdSpendEfficiency",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "DistributorReach",
+                "type": "range",
+                "min": 10,
+                "max": 1000,
+                "float": false
+            },
+            {
+                "name": "ExpiryLoss",
+                "type": "range",
+                "min": 0,
+                "max": 10,
+                "float": true
+            }
+        ]
+    },
+    "Airlines": {
+        "products": [
+            "Domestic Flights",
+            "International Flights",
+            "Cargo Services"
+        ],
+        "operational": [
+            {
+                "name": "OnTimePerformance",
+                "type": "range",
+                "min": 70,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "FuelConsumption",
+                "type": "range",
+                "min": 10000,
+                "max": 500000,
+                "float": false
+            },
+            {
+                "name": "LoadFactor",
+                "type": "range",
+                "min": 60,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "Cancellations",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": false
+            },
+            {
+                "name": "MaintenanceHours",
+                "type": "range",
+                "min": 0,
+                "max": 5000,
+                "float": false
+            }
+        ]
+    },
+    "Construction": {
+        "products": [
+            "Residential Projects",
+            "Commercial Projects",
+            "Infrastructure Works"
+        ],
+        "operational": [
+            {
+                "name": "CementUsed",
+                "type": "range",
+                "min": 1000,
+                "max": 50000,
+                "float": false
+            },
+            {
+                "name": "SteelUsed",
+                "type": "range",
+                "min": 500,
+                "max": 20000,
+                "float": false
+            },
+            {
+                "name": "ProjectDelayDays",
+                "type": "range",
+                "min": 0,
+                "max": 365,
+                "float": false
+            },
+            {
+                "name": "SafetyIncidents",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": false
+            },
+            {
+                "name": "LaborUtilization",
+                "type": "range",
+                "min": 50,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Healthcare": {
+        "products": [
+            "Inpatient Services",
+            "Outpatient Services",
+            "Diagnostics",
+            "Telemedicine"
+        ],
+        "operational": [
+            {
+                "name": "BedOccupancyRate",
+                "type": "range",
+                "min": 50,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "PatientWaitTime",
+                "type": "range",
+                "min": 5,
+                "max": 300,
+                "float": false
+            },
+            {
+                "name": "SurgeriesPerformed",
+                "type": "range",
+                "min": 0,
+                "max": 500,
+                "float": false
+            },
+            {
+                "name": "InfectionControlScore",
+                "type": "range",
+                "min": 0,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "StaffUtilization",
+                "type": "range",
+                "min": 50,
+                "max": 100,
+                "float": true
+            }
+        ]
+    },
+    "Oil & Gas": {
+        "products": [
+            "Crude Oil",
+            "Natural Gas",
+            "Petrochemicals"
+        ],
+        "operational": [
+            {
+                "name": "BarrelsProduced",
+                "type": "range",
+                "min": 1000,
+                "max": 1000000,
+                "float": false
+            },
+            {
+                "name": "RefineryUtilization",
+                "type": "range",
+                "min": 60,
+                "max": 100,
+                "float": true
+            },
+            {
+                "name": "PipelineDowntime",
+                "type": "range",
+                "min": 0,
+                "max": 500,
+                "float": false
+            },
+            {
+                "name": "EmissionsLevel",
+                "type": "range",
+                "min": 0,
+                "max": 500,
+                "float": true
+            },
+            {
+                "name": "SafetyIncidents",
+                "type": "range",
+                "min": 0,
+                "max": 50,
+                "float": false
+            }
+        ]
+    }
+}

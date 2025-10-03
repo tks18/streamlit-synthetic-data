@@ -1,0 +1,54 @@
+{
+  "description": "IT Services: Revenue + Debtors + ProjectHours",
+  "custom_columns": {
+    "Revenue_Invoices": [
+      [
+        "InvoiceType",
+        {
+          "type": "choice",
+          "options": [
+            "Standard",
+            "Credit"
+          ]
+        }
+      ],
+      [
+        "Currency",
+        {
+          "type": "choice",
+          "options": [
+            "INR",
+            "USD"
+          ]
+        }
+      ],
+      [
+        "DiscountPct",
+        {
+          "type": "range",
+          "min": 0,
+          "max": 5
+        }
+      ]
+    ],
+    "Operational": [
+      [
+        "ProjectHours",
+        {
+          "type": "range",
+          "min": 1,
+          "max": 12
+        }
+      ],
+      [
+        "TicketsResolved",
+        {
+          "type": "range",
+          "min": 0,
+          "max": 50
+        }
+      ]
+    ]
+  },
+  "scenarios": []
+}
