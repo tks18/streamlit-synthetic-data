@@ -586,6 +586,42 @@ def apply_correlation(df: pd.DataFrame, source_col: str, target_col: str, coef: 
 # ----------------------------
 
 
+# Default Choices
+DEF_INDUSTRY = list(INDUSTRY_KPIS.keys())[0]
+DEF_PRODUCTS = INDUSTRY_KPIS[DEF_INDUSTRY]['products']
+DEF_FREQ = 'ME'
+DEF_FAKER_LOCALE = 'en_IN'
+DEF_OUTLIER_FREQ = 0.05
+DEF_OUTLIER_MAG = 2
+DEF_START_DATE = pd.to_datetime(DEFAULT_START_DATE).date()
+DEF_END_DATE = pd.to_datetime(DEFAULT_END_DATE).date()
+
+profile_keys = [
+    ('key_industry', 'industry', DEF_INDUSTRY),
+    ('key_products', 'products', DEF_PRODUCTS),
+    ('key_countries', 'countries', DEFAULT_REGION_CHOICE),
+    ('key_start_date', 'start_date', DEF_START_DATE),
+    ('key_end_date', 'end_date', DEF_END_DATE),
+    ('key_freq', 'frequency', DEF_FREQ),
+    ('key_faker_locale', 'faker_locale', DEF_FAKER_LOCALE),
+    ('key_outlier_freq', 'outlier_frequency', DEF_OUTLIER_FREQ),
+    ('key_outlier_mag', 'outlier_magnitude', DEF_OUTLIER_MAG),
+    ('key_custom_columns', 'custom_columns', {}),
+    ('key_scenarios', 'scenarios', [])
+]
+
+
+def prepare_profile_paylod():
+    payload = {}
+    for prof_item in profile_keys:
+        state_key, json_key, alt_result = prof_item
+        if state_key in ['key_start_date', 'key_end_date']:
+            payload[json_key] = st.session_state.get(
+                state_key, alt_result).strftime('%Y-%m-%d')
+        else:
+            payload[json_key] = st.session_state.get(state_key, alt_result)
+    return payload
+
 def save_profile_to_disk(name):
     payload = {
         'custom_config_ordered': st.session_state.get('custom_config_ordered', {}),
