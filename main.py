@@ -1,4 +1,3 @@
-from narwhals import col
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,9 +10,7 @@ import ast
 import math
 import random
 import os
-from datetime import datetime
 from streamlit_sortables import sort_items
-SORTABLES_AVAILABLE = True
 
 # ----------------------------
 # Config & folders
