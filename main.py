@@ -529,7 +529,7 @@ DEF_END_DATE = pd.to_datetime(DEFAULT_END_DATE).date()
 profile_keys = [
     ('key_industry', 'industry', DEF_INDUSTRY),
     ('key_products', 'products', DEF_PRODUCTS),
-    ('key_countries', 'countries', DEFAULT_REGION_CHOICE),
+    ('key_countries', 'countries', list(DEFAULT_REGION_CHOICE.keys())),
     ('key_start_date', 'start_date', DEF_START_DATE),
     ('key_end_date', 'end_date', DEF_END_DATE),
     ('key_freq', 'frequency', DEF_FREQ),
@@ -611,10 +611,10 @@ with st.sidebar:
     products_str = INDUSTRY_KPIS.get(industry, {}).get(
         "products", ["Product A", "Product B"])
     products = st.multiselect(
-        'Products', options=products_str, default=products_str, accept_new_options=True, key='key_products')
+        'Products', options=products_str, accept_new_options=True, key='key_products')
 
     country_choices = st.multiselect('Country choices', options=list(
-        DEFAULT_REGIONS.keys()), default=list(DEFAULT_REGION_CHOICE.keys()), accept_new_options=True, key='key_countries')
+        DEFAULT_REGIONS.keys()), accept_new_options=True, key='key_countries')
     start_date = st.date_input(
         'Start Date', key='key_start_date')
     end_date = st.date_input(
