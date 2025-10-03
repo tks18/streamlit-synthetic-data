@@ -22,7 +22,9 @@ APP_MAIN_TITLE = "Shan's Dataverse"
 APP_TITLE = "📈 Enhanced Data Cockpit — Finance + Ops"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROFILES_DIR = os.path.join(BASE_DIR, "profiles")
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+INDUSTRY_KPIS_DIR = os.path.join(STATIC_DIR, "industries.json")
+REGIONS_DIR = os.path.join(STATIC_DIR, "regions.json")
 os.makedirs(PROFILES_DIR, exist_ok=True)
 
 # ----------------------------
@@ -546,11 +548,9 @@ def prepare_profile_paylod():
             payload[json_key] = st.session_state.get(state_key, alt_result)
     return payload
 
+
 def save_profile_to_disk(name):
-    payload = {
-        'custom_config_ordered': st.session_state.get('custom_config_ordered', {}),
-        'scenarios': st.session_state.get('scenarios', [])
-    }
+    payload = prepare_profile_paylod()
     safe_name = ''.join(ch for ch in name if ch.isalnum()
                         or ch in (' ', '_', '-')).rstrip()
     path = os.path.join(PROFILES_DIR, f"{safe_name}.json")
@@ -567,28 +567,13 @@ def load_profile_from_disk(fname):
     path = os.path.join(PROFILES_DIR, fname)
     with open(path) as fh:
         payload = json.load(fh)
-    st.session_state.custom_config_ordered = payload.get(
-        'custom_config_ordered', {})
-    st.session_state.scenarios = payload.get('scenarios', [])
-
-# ----------------------------
-# Templates
-# ----------------------------
-
-
-def list_templates():
-    return [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.json')]
-
-
-def load_template(fname):
-    path = os.path.join(TEMPLATES_DIR, fname)
-    with open(path) as fh:
-        payload = json.load(fh)
-    # Convert dict config to ordered list format and merge
-    for ds, cfg_dict in payload.get('custom_config', {}).items():
-        st.session_state.custom_config_ordered[ds] = list(cfg_dict.items())
-    # Add scenarios
-    st.session_state.scenarios.extend(payload.get('scenarios', []))
+    for prof_item in profile_keys:
+        state_key, json_key, alt_result = prof_item
+        if state_key in ['key_start_date', 'key_end_date']:
+            st.session_state[state_key] = pd.to_datetime(
+                payload.get(json_key, alt_result)).date()
+        else:
+            st.session_state[state_key] = payload.get(json_key, alt_result)
 
 
 # ----------------------------
