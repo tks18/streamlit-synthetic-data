@@ -1,18 +1,24 @@
 {
   "description": "Steel: Add coal usage KPIs and a supply-shock scenario",
-  "custom_config": {
-    "Steel_Operational": {
-      "CoalUsed": {
-        "type": "range",
-        "min": 1000,
-        "max": 5000
-      },
-      "EnergyUsed": {
-        "type": "range",
-        "min": 500,
-        "max": 2000
-      }
-    }
+  "custom_columns": {
+    "Operational": [
+      [
+        "CoalUsed",
+        {
+          "type": "range",
+          "min": 1000,
+          "max": 5000
+        }
+      ],
+      [
+        "EnergyUsed",
+        {
+          "type": "range",
+          "min": 500,
+          "max": 2000
+        }
+      ]
+    ]
   },
   "scenarios": [
     {

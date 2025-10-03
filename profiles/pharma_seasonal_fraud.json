@@ -1,16 +1,19 @@
 {
   "description": "Pharma: Seasonal sales and fraudulent expense claims",
-  "custom_config": {
-    "Revenue_Invoices": {
-      "BatchID": {
-        "type": "choice",
-        "options": [
-          "B01",
-          "B02",
-          "B03"
-        ]
-      }
-    }
+  "custom_columns": {
+    "Revenue_Invoices": [
+      [
+        "BatchID",
+        {
+          "type": "choice",
+          "options": [
+            "B01",
+            "B02",
+            "B03"
+          ]
+        }
+      ]
+    ]
   },
   "scenarios": [
     {

@@ -1,0 +1,53 @@
+{
+  "industry": "IT Services",
+  "products": [
+    "Cloud Migration",
+    "Managed Services",
+    "Software Dev",
+    "Custom Software",
+    "Cybersecurity Solutions",
+    "AI/ML Analytics"
+  ],
+  "countries": [
+    "India",
+    "United States",
+    "United Kingdom"
+  ],
+  "start_date": "2020-01-01",
+  "end_date": "2022-12-31",
+  "frequency": "Me",
+  "faker_locale": "en_IN",
+  "outlier_frequency": 0.12,
+  "outlier_magnitude": 2.0,
+  "custom_columns": {
+    "Revenue_Invoices": [
+      [
+        "sample1",
+        {
+          "type": "formula",
+          "expr": "np.log1p(InvoiceAmount)"
+        }
+      ],
+      [
+        "sample2",
+        {
+          "type": "formula",
+          "expr": "np.log1p(sample1)"
+        }
+      ]
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "sample_itc",
+      "type": "shock",
+      "target_dataset": "Revenue_Invoices",
+      "target_column": "InvoiceAmount",
+      "seed": 42,
+      "start": "2025-10-03",
+      "end": "2025-10-03",
+      "magnitude": 0.7,
+      "mode": "multiplier"
+    }
+  ]
+}

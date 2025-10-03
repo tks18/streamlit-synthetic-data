@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.4.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.3.1...v0.4.0) (2025-10-03)
+
+
+### Features 🔥
+
+* **app/profiles:** robust profile data mapping with default values ([37e3665](https://github.com/tks18/streamlit-synthetic-data/commit/37e3665e267e4bbb0f1bcfc5d372cdb0fdd0b9f8))
+* **profiles:** add keys to elements, enable loading of profiles for every config ([244f32f](https://github.com/tks18/streamlit-synthetic-data/commit/244f32f6aefd7e2ec7956999c04f6f9fb179faf1))
+* **templates:** remove templates & structure profiles to handle everything ([9665d0e](https://github.com/tks18/streamlit-synthetic-data/commit/9665d0edbfab40477f879e014db54fcccac53fb9))
+
+
+### Others 🔧
+
+* remove unwanted imports ([783a82c](https://github.com/tks18/streamlit-synthetic-data/commit/783a82cfe0cf3223b273c970abb1dfc0f2fe1184))
+
+
+### Bug Fixes 🛠
+
+* **app:** remove the default columns table as its not showing properly ([9404a44](https://github.com/tks18/streamlit-synthetic-data/commit/9404a44bdde3e6d10bba1c9cea5b857259adaee3))
+
+
+### Code Refactoring 🖌
+
+* **statics:** remove json generators & move everything to statics folder ([c7fcd8b](https://github.com/tks18/streamlit-synthetic-data/commit/c7fcd8b315843e7cf63dc872863c886e32f02dc7))
+* **statics:** remove templates, add statics for industry & regions ([092658b](https://github.com/tks18/streamlit-synthetic-data/commit/092658b7cd8950d7b6bb10e571d75d2470a84075))
+
 ### [0.3.1](https://github.com/tks18/streamlit-synthetic-data/compare/v0.3.0...v0.3.1) (2025-10-02)
 
 

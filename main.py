@@ -1,4 +1,3 @@
-from narwhals import col
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,9 +10,7 @@ import ast
 import math
 import random
 import os
-from datetime import datetime
 from streamlit_sortables import sort_items
-SORTABLES_AVAILABLE = True
 
 # ----------------------------
 # Config & folders
@@ -22,101 +19,27 @@ APP_MAIN_TITLE = "Shan's Dataverse"
 APP_TITLE = "📈 Enhanced Data Cockpit — Finance + Ops"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROFILES_DIR = os.path.join(BASE_DIR, "profiles")
-TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+INDUSTRY_KPIS_DIR = os.path.join(STATIC_DIR, "industries.json")
+REGIONS_DIR = os.path.join(STATIC_DIR, "regions.json")
 os.makedirs(PROFILES_DIR, exist_ok=True)
-os.makedirs(TEMPLATES_DIR, exist_ok=True)
 
 # ----------------------------
-# Default Data Schemas (Added to make the script runnable)
+# Default Data Schemas
 # ----------------------------
 DEFAULT_START_DATE = "2020-01-01"
 DEFAULT_END_DATE = "2022-12-31"
-INDUSTRY_KPIS = {
-    "IT Services": {
-        "products": ["Cloud Migration", "Managed Services", "Software Dev"],
-        "operational": ["TicketsResolved", "ProjectHours", "ServerUptimePct"]
-    },
-    "Steel": {
-        "products": ["TMT Bars", "Steel Coils", "Structural Steel"],
-        "operational": ["CoalUsed", "EnergyUsed", "ProductionTons", "FurnaceTemp"]
-    },
-    "Pharma": {
-        "products": ["API-A", "Formulation-X", "Vaccine-Y"],
-        "operational": ["BatchYield", "ContaminationEvents", "R&D_Hours"]
-    }
-}
 
-DEFAULT_REGIONS = {
-    "India": ["Karnataka", "Maharashtra", "Delhi", "Tamil Nadu"],
-    "USA": ["California", "Texas", "New York"],
-    "Germany": ["Bavaria", "Berlin", "Hesse"]
-}
+# Load JSON
+with open(INDUSTRY_KPIS_DIR, "r", encoding="utf-8") as f:
+    INDUSTRY_KPIS = json.load(f)
 
-# ----------------------------
-# Write default templates if not present
-# ----------------------------
-DEFAULT_TEMPLATES = {
-    "it_o2c": {
-        "description": "IT Services: Revenue + Debtors + ProjectHours",
-        "custom_config": {
-            "Revenue_Invoices": {
-                "InvoiceType": {"type": "choice", "options": ["Standard", "Credit"]},
-                "Currency": {"type": "choice", "options": ["INR", "USD"]},
-                "DiscountPct": {"type": "range", "min": 0, "max": 5}
-            },
-            "IT_Services_Operational": {
-                "ProjectHours": {"type": "range", "min": 1, "max": 12},
-                "TicketsResolved": {"type": "range", "min": 0, "max": 50}
-            }
-        },
-        "scenarios": []
-    },
-    "steel_supply_shock": {
-        "description": "Steel: Add coal usage KPIs and a supply-shock scenario",
-        "custom_config": {
-            "Steel_Operational": {
-                "CoalUsed": {"type": "range", "min": 1000, "max": 5000},
-                "EnergyUsed": {"type": "range", "min": 500, "max": 2000}
-            }
-        },
-        "scenarios": [
-            {"name": "Coal supply shock", "type": "shock", "target_dataset": "Operational", "target_column": "CoalUsed", "start": str(
-                datetime(2024, 12, 1).date()), "end": str(datetime(2024, 12, 31).date()), "magnitude": 0.6, "mode": "multiplier", "seed": 42}
-        ]
-    },
-    "pharma_seasonal_fraud": {
-        "description": "Pharma: Seasonal sales and fraudulent expense claims",
-        "custom_config": {
-            "Revenue_Invoices": {
-                "BatchID": {"type": "choice", "options": ["B01", "B02", "B03"]}
-            }
-        },
-        "scenarios": [
-            {
-                "name": "Winter Sales Spike",
-                "type": "seasonal",
-                "target_dataset": "Revenue_Invoices",
-                "target_column": "InvoiceAmount",
-                "month_multipliers": {"11": 1.3, "12": 1.6, "1": 1.4}
-            },
-            {
-                "name": "Fraudulent Purchases",
-                "type": "fraud_outlier",
-                "target_dataset": "Purchases",
-                "target_column": "PurchaseAmount",
-                "pct": 0.02,
-                "multiplier": 10.0,
-                "seed": 123
-            }
-        ]
-    }
-}
+with open(REGIONS_DIR, "r", encoding="utf-8") as f:
+    DEFAULT_REGIONS = json.load(f)
 
-for k, v in DEFAULT_TEMPLATES.items():
-    p = os.path.join(TEMPLATES_DIR, f"{k}.json")
-    if not os.path.exists(p):
-        with open(p, "w") as fh:
-            json.dump(v, fh, indent=2)
+# Default Region Choices
+DEFAULT_REGION_CHOICE = {
+    "India": DEFAULT_REGIONS["India"], "United States": DEFAULT_REGIONS["United States"], "United Kingdom": DEFAULT_REGIONS["United Kingdom"]}
 
 # ----------------------------
 # Allowed modules for formulas
@@ -423,29 +346,36 @@ def generate_inventory_snapshots(products, start, end, freq, seed=42):
     return pd.DataFrame(rows)
 
 
-def generate_operational_dataset(industry, start, end, freq, kpi_template=None, faker=None, seed=42, rows_per_period=50):
+def generate_operational_dataset(industry, start, end, freq, kpi_template=None, countries=None, default_regions=None, faker=None, seed=42, rows_per_period=50):
     faker = faker or set_seed(seed)
     dates = date_range(start, end, freq)
+    countries = countries or ["India"]
+    default_regions = default_regions or {"India": ["Karnataka"]}
     rows = []
     if not kpi_template:
-        kpi_template = {}
-        ops_kpis = INDUSTRY_KPIS.get(industry, {}).get("operational", [])
-        for kpi in ops_kpis:
-            kpi_template[kpi] = {"type": "range", "min": 1, "max": 100}
+        kpi_template = INDUSTRY_KPIS.get(industry, {}).get("operational", [])
 
     for d in dates:
         for _ in range(rows_per_period):
-            row = {"Industry": industry, "Date": d.date(), "Region": np.random.choice([
-                "North", "South", "West", "East"])}
-            for k, cfg in kpi_template.items():
+            country = np.random.choice(countries)
+            region = np.random.choice(
+                default_regions.get(country, ["Unknown"]))
+            row = {"Industry": industry, "Date": d.date(
+            ), "Country": country, "Region": region}
+            for cfg in kpi_template:
+                cname = cfg.get("name", "Unknown")
                 ctype = cfg.get("type", "range")
                 if ctype == "choice":
-                    row[k] = np.random.choice(cfg.get("options", ["unknown"]))
+                    row[cname] = np.random.choice(
+                        cfg.get("options", ["unknown"]))
                 elif ctype == "range":
-                    row[k] = float(np.random.uniform(
-                        cfg.get("min", 0), cfg.get("max", 1)))
+                    allow_float = cfg.get("float", True)
+                    row[cname] = float(np.random.uniform(
+                        cfg.get("min", 0), cfg.get("max", 1))) if allow_float else int(np.random.randint(
+                            cfg.get("min", 0), cfg.get("max", 100)
+                        ))
                 else:
-                    row[k] = np.nan
+                    row[cname] = np.nan
             rows.append(row)
     return pd.DataFrame(rows)
 
@@ -455,11 +385,11 @@ def generate_operational_dataset(industry, start, end, freq, kpi_template=None, 
 
 
 def get_dataset_config(ds):
-    return st.session_state.custom_config_ordered.get(ds, [])
+    return st.session_state.key_custom_columns.get(ds, [])
 
 
 def set_dataset_config(ds, ordered_list):
-    st.session_state.custom_config_ordered[ds] = ordered_list
+    st.session_state.key_custom_columns[ds] = ordered_list
 
 
 def add_or_update_column(ds, col_name, col_cfg):
@@ -586,11 +516,45 @@ def apply_correlation(df: pd.DataFrame, source_col: str, target_col: str, coef: 
 # ----------------------------
 
 
+# Default Choices
+DEF_INDUSTRY = list(INDUSTRY_KPIS.keys())[0]
+DEF_PRODUCTS = INDUSTRY_KPIS[DEF_INDUSTRY]['products']
+DEF_FREQ = 'ME'
+DEF_FAKER_LOCALE = 'en_IN'
+DEF_OUTLIER_FREQ = 0.05
+DEF_OUTLIER_MAG = 2
+DEF_START_DATE = pd.to_datetime(DEFAULT_START_DATE).date()
+DEF_END_DATE = pd.to_datetime(DEFAULT_END_DATE).date()
+
+profile_keys = [
+    ('key_industry', 'industry', DEF_INDUSTRY),
+    ('key_products', 'products', DEF_PRODUCTS),
+    ('key_countries', 'countries', DEFAULT_REGION_CHOICE),
+    ('key_start_date', 'start_date', DEF_START_DATE),
+    ('key_end_date', 'end_date', DEF_END_DATE),
+    ('key_freq', 'frequency', DEF_FREQ),
+    ('key_faker_locale', 'faker_locale', DEF_FAKER_LOCALE),
+    ('key_outlier_freq', 'outlier_frequency', DEF_OUTLIER_FREQ),
+    ('key_outlier_mag', 'outlier_magnitude', DEF_OUTLIER_MAG),
+    ('key_custom_columns', 'custom_columns', {}),
+    ('key_scenarios', 'scenarios', [])
+]
+
+
+def prepare_profile_paylod():
+    payload = {}
+    for prof_item in profile_keys:
+        state_key, json_key, alt_result = prof_item
+        if state_key in ['key_start_date', 'key_end_date']:
+            payload[json_key] = st.session_state.get(
+                state_key, alt_result).strftime('%Y-%m-%d')
+        else:
+            payload[json_key] = st.session_state.get(state_key, alt_result)
+    return payload
+
+
 def save_profile_to_disk(name):
-    payload = {
-        'custom_config_ordered': st.session_state.get('custom_config_ordered', {}),
-        'scenarios': st.session_state.get('scenarios', [])
-    }
+    payload = prepare_profile_paylod()
     safe_name = ''.join(ch for ch in name if ch.isalnum()
                         or ch in (' ', '_', '-')).rstrip()
     path = os.path.join(PROFILES_DIR, f"{safe_name}.json")
@@ -607,37 +571,27 @@ def load_profile_from_disk(fname):
     path = os.path.join(PROFILES_DIR, fname)
     with open(path) as fh:
         payload = json.load(fh)
-    st.session_state.custom_config_ordered = payload.get(
-        'custom_config_ordered', {})
-    st.session_state.scenarios = payload.get('scenarios', [])
-
-# ----------------------------
-# Templates
-# ----------------------------
-
-
-def list_templates():
-    return [f for f in os.listdir(TEMPLATES_DIR) if f.endswith('.json')]
-
-
-def load_template(fname):
-    path = os.path.join(TEMPLATES_DIR, fname)
-    with open(path) as fh:
-        payload = json.load(fh)
-    # Convert dict config to ordered list format and merge
-    for ds, cfg_dict in payload.get('custom_config', {}).items():
-        st.session_state.custom_config_ordered[ds] = list(cfg_dict.items())
-    # Add scenarios
-    st.session_state.scenarios.extend(payload.get('scenarios', []))
+    for prof_item in profile_keys:
+        state_key, json_key, alt_result = prof_item
+        if state_key in ['key_start_date', 'key_end_date']:
+            st.session_state[state_key] = pd.to_datetime(
+                payload.get(json_key, alt_result)).date()
+        else:
+            st.session_state[state_key] = payload.get(json_key, alt_result)
 
 
 # ----------------------------
 # Initialize session state
 # ----------------------------
-if 'custom_config_ordered' not in st.session_state:
-    st.session_state.custom_config_ordered = {}
-if 'scenarios' not in st.session_state:
-    st.session_state.scenarios = []
+
+if "load_profile" in st.session_state:
+    load_profile_from_disk(st.session_state.pop("load_profile"))
+else:
+    for prof_item in profile_keys:
+        state_key, _, alt_result = prof_item
+        if state_key not in st.session_state:
+            st.session_state[state_key] = alt_result
+
 if 'profiles_cache' not in st.session_state:
     st.session_state.profiles_cache = list_profiles_on_disk()
 
@@ -652,29 +606,32 @@ st.subheader(APP_TITLE, divider=True)
 # --- Sidebar ---
 with st.sidebar:
     st.header('Core Settings')
-    industry = st.selectbox('Industry', list(INDUSTRY_KPIS.keys()))
+    industry = st.selectbox('Industry', list(
+        INDUSTRY_KPIS.keys()), key='key_industry')
     products_str = INDUSTRY_KPIS.get(industry, {}).get(
         "products", ["Product A", "Product B"])
     products = st.multiselect(
-        'Products', options=products_str, default=products_str, accept_new_options=True)
+        'Products', options=products_str, default=products_str, accept_new_options=True, key='key_products')
 
     country_choices = st.multiselect('Country choices', options=list(
-        DEFAULT_REGIONS.keys()), default=list(DEFAULT_REGIONS.keys()), accept_new_options=True)
+        DEFAULT_REGIONS.keys()), default=list(DEFAULT_REGION_CHOICE.keys()), accept_new_options=True, key='key_countries')
     start_date = st.date_input(
-        'Start Date', value=pd.to_datetime('2024-04-01').date())
+        'Start Date', key='key_start_date')
     end_date = st.date_input(
-        'End Date', value=pd.to_datetime('2025-03-31').date())
+        'End Date', key='key_end_date')
     freq = st.selectbox(
-        'Frequency', ['ME', 'W', 'D'], help="ME=Month-end, W=Week-end, D=Day")
+        'Frequency', ['ME', 'W', 'D'], help="ME=Month-end, W=Week-end, D=Day", key='key_freq')
     seed = int(st.number_input('Seed', value=42))
     faker_locale = st.selectbox(
-        'Faker locale', ['en_US', 'en_IN', 'hi_IN', 'ta_IN', 'en_GB', 'fr_FR'])
+        'Faker locale', ['en_US', 'en_IN', 'en_GB', 'fr_FR'], key='key_faker_locale')
     st.markdown("---")
     st.header('Outliers')
-    outlier_freq = st.slider('Outlier Frequency', 0.0, 0.2, 0.02)
-    outlier_mag = st.slider('Outlier Magnitude', 1.5, 8.0, 3.0)
+    outlier_freq = st.slider('Outlier Frequency', 0.0,
+                             0.2, 0.02, key='key_outlier_freq')
+    outlier_mag = st.slider('Outlier Magnitude', 1.5,
+                            8.0, 3.0, key='key_outlier_mag')
     st.markdown('---')
-    st.header('Profiles & Templates')
+    st.header('Profiles')
     new_profile_name = st.text_input('Save current config as profile', '')
     if st.button('Save Profile'):
         if new_profile_name.strip():
@@ -689,113 +646,26 @@ with st.sidebar:
                             ''] + st.session_state.profiles_cache)
     if st.button('Load Profile'):
         if prof_sel:
-            load_profile_from_disk(prof_sel)
+            st.session_state["load_profile"] = prof_sel
             st.success(f'Loaded {prof_sel}')
             st.rerun()
         else:
             st.error('Select a profile file')
 
-    templ_sel = st.selectbox('Load template', [''] + list_templates())
-    if st.button('Load Template'):
-        if templ_sel:
-            load_template(templ_sel)
-            st.success(f'Loaded template {templ_sel}')
-            st.rerun()
-        else:
-            st.error('Select a template')
+    if st.button('Prepare Profile for Download'):
+        profile_dump = prepare_profile_paylod()
+        st.download_button('Download Profile',
+                           json.dumps(profile_dump), 'profile_dump.json', 'application/json')
 
 # --- Main Layout: Tabs ---
 DATASET_OPTIONS = ['Revenue_Invoices', 'Debtors_Aggregated', 'PPE_Register',
                    'Purchases', 'Inventory', 'Customer_Master', 'Vendor_Master', 'Operational']
-DATASET_COL_KEYS = DEFAULT_SCHEMAS = {
-    "Customer_Master": {
-        "CustomerID": "str",
-        "CustomerName": "str",
-        "Country": "str",
-        "Region": "str",
-        "CustomerSegment": "str",
-        "Industry": "str"
-    },
-    "Vendor_Master": {
-        "VendorID": "str",
-        "VendorName": "str",
-        "Country": "str",
-        "Region": "str",
-        "VendorType": "str",
-        "Industry": "str"
-    },
-    "Revenue_Invoices": {
-        "Industry": "str",
-        "Product": "str",
-        "Date": "date",
-        "InvoiceID": "str",
-        "CustomerID": "str",
-        "CustomerSegment": "str",
-        "Country": "str",
-        "Region": "str",
-        "InvoiceAmount": "float",
-        "DueDate": "date",
-        "PaymentDate": "date",
-        "PaidAmount": "float",
-        "PaymentStatus": "str",
-        "Outstanding": "float"
-    },
-    "Debtors_Aggregated": {
-        "PeriodEnd": "date",
-        "CustomerID": "str",
-        "CustomerSegment": "str",
-        "Country": "str",
-        "Region": "str",
-        "OpeningBalance": "float",
-        "Credit": "float",
-        "Collections": "float",
-        "ClosingBalance": "float",
-        "DSO_Est": "float"
-    },
-    "PPE_Register": {
-        "AssetID": "str",
-        "AssetDesc": "str",
-        "AcquisitionDate": "date",
-        "Cost": "float",
-        "UsefulLifeYears": "int",
-        "AccumulatedDepreciation": "float",
-        "CarryingValue": "float",
-        "Country": "str",
-        "Region": "str",
-        "Department": "str"
-    },
-    "Purchases": {
-        "Industry": "str",
-        "Product": "str",
-        "Date": "date",
-        "PurchaseInvoiceID": "str",
-        "VendorID": "str",
-        "VendorType": "str",
-        "Country": "str",
-        "Region": "str",
-        "PurchaseAmount": "float"
-    },
-    "Inventory": {
-        "Product": "str",
-        "Date": "date",
-        "OpeningStock": "int",
-        "Receipts": "int",
-        "Sales": "int",
-        "ClosingStock": "int",
-        "InventoryValue": "float",
-        "Region": "str"
-    },
-    "Operational": {
-        "Industry": "str",
-        "Date": "date",
-        "Region": "str",
-    }
-}
+
 tab1, tab2, tab3 = st.tabs(
     ['Custom Columns', 'Scenarios', 'Generate & Download'])
 
 # ----------------------------
-# Tab 1: Custom Columns GUI (with Drag-and-Drop)
+# Tab 1: Custom Columns GUI
 # ----------------------------
 with tab1:
     st.header('Custom Columns')
@@ -803,9 +673,6 @@ with tab1:
                               options=DATASET_OPTIONS, key="ds_selector")
 
     lst = get_dataset_config(ds_to_edit)
-    st.subheader(f'Default Columns for `{ds_to_edit}`')
-    col_info = pd.DataFrame([DEFAULT_SCHEMAS[ds_to_edit]])
-    st.dataframe(col_info, hide_index=True)
     st.subheader(f'Custom Columns for `{ds_to_edit}`')
 
     if not lst:
@@ -878,24 +745,24 @@ with tab2:
     st.info('Scenarios are applied in order during data generation.')
 
     st.subheader('Manage Scenarios')
-    if not st.session_state.scenarios:
+    if not st.session_state.key_scenarios:
         st.write(
-            'No scenarios configured. Add one below or load a template from the sidebar.')
+            'No scenarios configured. Add one below or load a profile from the sidebar.')
 
-    for i, s in enumerate(st.session_state.scenarios):
+    for i, s in enumerate(st.session_state.key_scenarios):
         expander_title = f"**{i+1}. {s.get('name', 'Untitled')}** (`{s.get('type')}` on `{s.get('target_dataset')}.{s.get('target_column')}`)"
         with st.expander(expander_title):
             st.json(s)
             if st.button(f'Delete Scenario {i+1}', key=f'delscn{i}'):
-                st.session_state.scenarios.pop(i)
+                st.session_state.key_scenarios.pop(i)
                 st.rerun()
 
     st.markdown('---')
     st.subheader('Add New Scenario')
+    s_type = st.selectbox(
+        'Type', ['shock', 'seasonal', 'fraud_outlier', 'correlation'])
     with st.form('add_scenario', border=True):
         s_name = st.text_input('Scenario name')
-        s_type = st.selectbox(
-            'Type', ['shock', 'seasonal', 'fraud_outlier', 'correlation'])
         s_target_ds = st.selectbox('Target dataset', DATASET_OPTIONS)
         s_target_col = st.text_input('Target column', 'InvoiceAmount')
         s_seed = int(st.number_input('Scenario Seed', value=seed))
@@ -937,7 +804,7 @@ with tab2:
                 sc = {'name': s_name or f'scn_{s_type}', 'type': s_type,
                       'target_dataset': s_target_ds, 'target_column': s_target_col, 'seed': s_seed}
                 sc.update(sc_details)
-                st.session_state.scenarios.append(sc)
+                st.session_state.key_scenarios.append(sc)
                 st.success('Scenario added.')
                 st.rerun()
 
@@ -1013,14 +880,12 @@ with tab3:
 
             if 'Operational' in datasets_to_gen:
                 op = generate_operational_dataset(
-                    industry, start_date, end_date, freq, None, faker, seed+10)
-                config_key = f"{industry}_Operational" if get_dataset_config(
-                    f"{industry}_Operational") else 'Operational'
+                    industry, start_date, end_date, freq, None, country_choices, DEFAULT_REGIONS, faker, seed+10)
                 generated['Operational'] = apply_custom_columns_vectorized(
-                    op, config_key)
+                    op, 'Operational')
 
             # Apply scenarios
-            for sc in st.session_state.scenarios:
+            for sc in st.session_state.key_scenarios:
                 target_ds = sc.get('target_dataset')
                 if target_ds in generated:
                     df = generated[target_ds]
@@ -1052,7 +917,9 @@ with tab3:
         with zipfile.ZipFile(zip_buffer, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
             for name, df in st.session_state.generated_data.items():
                 st.subheader(f"`{name}` — {len(df):,} rows")
-                st.dataframe(df.head(100))
+                st.dataframe(df.head(50))
+                st.download_button(f'⬇️ Download {name}', df.to_csv(index=False).encode(
+                    'utf-8'), file_name=f"{name}.csv", use_container_width=True)
                 csv = df.to_csv(index=False).encode('utf-8')
                 zf.writestr(f"{name}.csv", csv)
 
