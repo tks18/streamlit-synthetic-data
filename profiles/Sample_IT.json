@@ -15,7 +15,7 @@
   ],
   "start_date": "2020-01-01",
   "end_date": "2022-12-31",
-  "frequency": "Me",
+  "frequency": "ME",
   "faker_locale": "en_IN",
   "outlier_frequency": 0.12,
   "outlier_magnitude": 2.0,
