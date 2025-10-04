@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.5.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.4.0...v0.5.0) (2025-10-04)
+
+
+### Bug Fixes 🛠
+
+* **app:** remove default keys from input fields since its getting applied using session api ([d6dc670](https://github.com/tks18/streamlit-synthetic-data/commit/d6dc670d1b4bf948a77d59cf30a7adafd43a7f01))
+
+
+### Build System 🏗
+
+* **package:** add countryinfo package to dynamically get the countries / states ([3643473](https://github.com/tks18/streamlit-synthetic-data/commit/364347371d4dd0b07ee8c3de6e9236b1a79a72aa))
+
+
+### Code Refactoring 🖌
+
+* **app:** modularize the app & refactor the entire app ([a515ec6](https://github.com/tks18/streamlit-synthetic-data/commit/a515ec6e9a8ffe2689c96c3f1f8a6a38cde7b793))
+* **app:** modularize the app: helper module ([e107cc6](https://github.com/tks18/streamlit-synthetic-data/commit/e107cc6c20fbe75f60c02bf50e2bc4186e8cdcc9))
+* **generators:** modularize the app: generators module ([aa76f8e](https://github.com/tks18/streamlit-synthetic-data/commit/aa76f8edc948832e1dab30e28a64de43f3b688c4))
+* **helper/countries:** remove statics/regions since its done through countryinfo package ([6ec612a](https://github.com/tks18/streamlit-synthetic-data/commit/6ec612a9d5ade2c9885e5b4f756315051fbde783))
+* **mods:** modularize the app: scenarios module ([ea01a74](https://github.com/tks18/streamlit-synthetic-data/commit/ea01a74d019e987ad5be8a413c0051ecbb9151c7))
+* **ui:** modularize the app: UI Module ([694a81a](https://github.com/tks18/streamlit-synthetic-data/commit/694a81a2cf5d74c36ff75d0feeb5fa8a8734771b))
+
+
+### Others 🔧
+
+* **profile:** update the sample profile ([0e038fb](https://github.com/tks18/streamlit-synthetic-data/commit/0e038fb7ed8a2c43e2ea2121ec8cb61facbf3102))
+
 ## [0.4.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.3.1...v0.4.0) (2025-10-03)
 
 
