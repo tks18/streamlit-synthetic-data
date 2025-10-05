@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.7.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.6.0...v0.7.0) (2025-10-05)
+
+
+### Code Refactoring 🖌
+
+* **generators:** rename the region into state across all generators ([890be92](https://github.com/tks18/streamlit-synthetic-data/commit/890be9279609f7cf93b8f17103809bdb537a8a89))
+
+
+### Features 🔥
+
+* **generators/customers:** update customer master with robust categorical & num data ([b5963de](https://github.com/tks18/streamlit-synthetic-data/commit/b5963dea37dfe65786eb0ce4c3cfb4fde25f669e))
+* **generators/vendors:** update vendor master with robust categorical & num data ([bf45b72](https://github.com/tks18/streamlit-synthetic-data/commit/bf45b7218fb61b3ce09f14e23cb5f3a0b7459ab3))
+
 ## [0.6.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.5.0...v0.6.0) (2025-10-05)
 
 
