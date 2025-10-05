@@ -2,11 +2,13 @@ import os
 import json
 import streamlit as st
 import pandas as pd
+from typing import cast, List
 
-from app.helpers.config import PROFILE_CONFIG, PROFILES_DIR
+from app.helpers.config import PROFILE_CONFIG, PROFILES_DIR, STATE_CONFIG
+from app.types import TProfileConfig
 
 
-def prepare_profile():
+def prepare_profile() -> TProfileConfig:
     payload = {}
     for prof_item in PROFILE_CONFIG:
         state_key, json_key, alt_result = prof_item
@@ -15,10 +17,10 @@ def prepare_profile():
                 state_key, alt_result).strftime('%Y-%m-%d')
         else:
             payload[json_key] = st.session_state.get(state_key, alt_result)
-    return payload
+    return cast(TProfileConfig, payload)
 
 
-def save_profile(name):
+def save_profile(name: str) -> str:
     payload = prepare_profile()
     safe_name = ''.join(ch for ch in name if ch.isalnum()
                         or ch in (' ', '_', '-')).rstrip()
@@ -28,11 +30,11 @@ def save_profile(name):
     return path
 
 
-def list_profiles():
+def list_profiles() -> List[str]:
     return [f for f in os.listdir(PROFILES_DIR) if f.endswith('.json')]
 
 
-def load_profile(fname):
+def load_profile(fname: str) -> None:
     path = os.path.join(PROFILES_DIR, fname)
     with open(path) as fh:
         payload = json.load(fh)
@@ -48,11 +50,11 @@ def load_profile(fname):
 # ----------------------------
 # Initialize session state
 # ----------------------------
-def initialize_state_or_profile():
+def initialize_state_or_profile() -> None:
     if "load_profile" in st.session_state:
         load_profile(st.session_state.pop("load_profile"))
     else:
-        for prof_item in PROFILE_CONFIG:
+        for prof_item in STATE_CONFIG:
             state_key, _, alt_result = prof_item
             if state_key not in st.session_state:
                 st.session_state[state_key] = alt_result

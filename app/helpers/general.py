@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 from faker import Faker
 import random
@@ -9,14 +10,14 @@ import pandas as pd
 # ----------------------------
 
 
-def set_seed(seed, locale=None):
+def set_seed(seed: int, locale=None) -> Faker:
     np.random.seed(seed)
     random.seed(seed)
     Faker.seed(seed)
     return Faker(locale) if locale else Faker()
 
 
-def rand_ids(prefix, n):
+def rand_ids(prefix, n) -> List[str]:
     return [f"{prefix}_{uuid.uuid4().hex[:8]}" for _ in range(n)]
 
 
