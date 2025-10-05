@@ -1,17 +1,19 @@
+from typing import Dict
+from faker import Faker
 import pandas as pd
 import numpy as np
 import uuid
 
 from app.helpers.config import INDUSTRY_KPIS
-from app.helpers.general import set_seed
+from app.types import TAppStateConfig
 
 
-def generate_customer_master(n_customers=200, countries=None, default_regions=None, faker=None, seed=42):
-    faker = faker or set_seed(seed)
-    countries = countries or ["India"]
-    default_regions = default_regions or {"India": ["Karnataka"]}
+def generate_customer_master(state_config: TAppStateConfig, faker: Faker = Faker(), generated: Dict[str, pd.DataFrame] = {}):
+    countries = state_config["countries"]
+    default_regions = state_config["country_config"]
+    total_customers = state_config["total_customers"]
     rows = []
-    for _ in range(n_customers):
+    for _ in range(total_customers):
         country = np.random.choice(countries)
         region = np.random.choice(default_regions.get(country, ["Unknown"]))
         rows.append({
