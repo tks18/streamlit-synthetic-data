@@ -2,9 +2,15 @@ import streamlit as st
 from streamlit import delta_generator
 import json
 
+from app.helpers.state import get_state_config
+from app.generators import generator_config
 
-def render_scenario_simulator_tab(tab_obj: delta_generator.DeltaGenerator, DATASET_OPTIONS, seed):
+
+def render_scenario_simulator_tab(tab_obj: delta_generator.DeltaGenerator):
     with tab_obj:
+        state_config = get_state_config()
+
+        seed = state_config["seed"]
         st.header('Scenarios')
         st.info('Scenarios are applied in order during data generation.')
 
@@ -27,7 +33,8 @@ def render_scenario_simulator_tab(tab_obj: delta_generator.DeltaGenerator, DATAS
             'Type', ['shock', 'seasonal', 'fraud_outlier', 'correlation'])
         with st.form('add_scenario', border=True):
             s_name = st.text_input('Scenario name')
-            s_target_ds = st.selectbox('Target dataset', DATASET_OPTIONS)
+            s_target_ds = st.selectbox(
+                'Target dataset', list(generator_config.keys()))
             s_target_col = st.text_input('Target column', 'InvoiceAmount')
             s_seed = int(st.number_input('Scenario Seed', value=seed))
 
