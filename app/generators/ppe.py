@@ -34,7 +34,7 @@ def generate_ppe_register(state_config: TAppStateConfig, faker: Faker = Faker(),
             "AssetID": f"ASSET_{uuid.uuid4().hex[:8]}", "AssetDesc": faker.word().capitalize(),
             "AcquisitionDate": acq_date, "Cost": cost, "UsefulLifeYears": useful_life,
             "AccumulatedDepreciation": round(acc_dep, 2), "CarryingValue": round(cost - acc_dep, 2),
-            "Country": country, "Region": region,
+            "Country": country, "State": region,
             "Department": np.random.choice(["Finance", "Ops", "Sales", "R&D"])
         })
     df = pd.DataFrame(rows)

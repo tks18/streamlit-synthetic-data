@@ -10,7 +10,9 @@ from app.types import TAppStateConfig
 
 def generate_inventory_snapshots(state_config: TAppStateConfig, faker: Faker = Faker(), generated: Dict[str, pd.DataFrame] = {}):
     seed = state_config["seed"]
+    countries = state_config["countries"]
     products = state_config["products"]
+    default_regions = state_config["country_config"]
     start_date = state_config["start_date"]
     end_date = state_config["end_date"]
     freq = state_config["frequency"]
@@ -21,6 +23,7 @@ def generate_inventory_snapshots(state_config: TAppStateConfig, faker: Faker = F
     for product in products:
         base_stock = np.random.randint(100, 5000)
         for d in dates:
+            country = np.random.choice(countries)
             opening = base_stock + int(np.random.normal(0, base_stock * 0.05))
             receipts = max(0, int(np.random.poisson(lam=base_stock*0.2)))
             sales = max(0, int(np.random.poisson(lam=base_stock*0.18)))
@@ -29,7 +32,7 @@ def generate_inventory_snapshots(state_config: TAppStateConfig, faker: Faker = F
                 "Product": product, "Date": d.date(), "OpeningStock": opening,
                 "Receipts": receipts, "Sales": sales, "ClosingStock": closing,
                 "InventoryValue": round(closing * np.random.uniform(10, 200), 2),
-                "Region": np.random.choice(["North", "South", "West", "East"])
+                "Country": country, "State": np.random.choice(default_regions.get(country, ["Unknown"]))
             })
     df = pd.DataFrame(rows)
     df = inject_outliers_vectorized(

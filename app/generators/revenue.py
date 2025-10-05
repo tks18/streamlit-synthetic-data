@@ -52,7 +52,7 @@ def generate_revenue_invoices(state_config: TAppStateConfig, faker: Faker = Fake
                 rows.append({
                     "Industry": industry, "Product": product, "Date": invoice_date.date(),
                     "InvoiceID": uuid.uuid4().hex[:12], "CustomerID": cust.CustomerID,
-                    "CustomerSegment": cust.CustomerSegment, "Country": cust.Country, "Region": cust.Region,
+                    "CustomerSegment": cust.CustomerSegment, "Country": cust.Country, "State": cust.State,
                     "InvoiceAmount": float(amt), "DueDate": due_date.date(),
                     "PaymentDate": (payment_date.date() if pd.notna(payment_date) else pd.NaT),
                     "PaidAmount": float(round(paid_amount, 2)), "PaymentStatus": pay_flag
