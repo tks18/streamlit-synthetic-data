@@ -4,13 +4,14 @@ import json
 from streamlit_sortables import sort_items
 
 from app.helpers.pd import add_or_update_column, delete_column, get_dataset_config, set_dataset_config
+from app.generators import generator_config
 
 
-def render_custom_columns_tab(tab_obj: delta_generator.DeltaGenerator, dataset_options: list):
+def render_custom_columns_tab(tab_obj: delta_generator.DeltaGenerator):
     with tab_obj:
         st.header('Custom Columns')
         ds_to_edit = st.selectbox('Dataset to customize',
-                                  options=dataset_options, key="ds_selector")
+                                  options=list(generator_config.keys()), key="ds_selector")
 
         lst = get_dataset_config(ds_to_edit)
         st.subheader(f'Custom Columns for `{ds_to_edit}`')

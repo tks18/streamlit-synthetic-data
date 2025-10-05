@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.5.0...v0.6.0) (2025-10-05)
+
+
+### Docs 📃
+
+* **typing:** add static types to all functions ([6c6421b](https://github.com/tks18/streamlit-synthetic-data/commit/6c6421bc58dc3fd94ec6e616caa2f89fe7009018))
+
+
+### Features 🔥
+
+* **generators:** create a generator config in order to create the data automatically ([65d3209](https://github.com/tks18/streamlit-synthetic-data/commit/65d32095ab6ea76d8ca43162a96191f13d9c5f13))
+* **generators:** make generators consistent so that it is possible to expand to more generators ([56e9e24](https://github.com/tks18/streamlit-synthetic-data/commit/56e9e24f0ae2e0e788f5e1d6bfdca7f2bc02c595))
+* **generators:** use state api, allow customization of total rows to generate ([1640a1a](https://github.com/tks18/streamlit-synthetic-data/commit/1640a1ab3950bf2344de13675de4d36a75eb97e8))
+* **helpers/config:** add caching for large data, add additional fields for state to hold ([ef6d4eb](https://github.com/tks18/streamlit-synthetic-data/commit/ef6d4ebd9e54268ea2eacef86f903c6f56c20247))
+* **helpers/countries:** add caching to the countries data ([479edc1](https://github.com/tks18/streamlit-synthetic-data/commit/479edc17f7985b8b94867e9e7485c6a947a0b10e))
+* **helpers/state:** add a state helper to get the config ([5e1a07e](https://github.com/tks18/streamlit-synthetic-data/commit/5e1a07e85a62d1f510d405506ab315c3751cc422))
+* **types:** create static typing for the entire app using types.py file ([cf0fbb4](https://github.com/tks18/streamlit-synthetic-data/commit/cf0fbb4d7c202623823f0eb4a58344343c8c82c1))
+* **ui/sidebar:** add customization of total rows, other misc fixes ([c5ca7bc](https://github.com/tks18/streamlit-synthetic-data/commit/c5ca7bc07d3bc081483a3805da9ab48ae657e2e5))
+
+
+### Code Refactoring 🖌
+
+* **ui/tabs:** refactor the generator code to do automatically, use state api ([f06193a](https://github.com/tks18/streamlit-synthetic-data/commit/f06193ae06c1f4da871c543604d07ce00b127657))
+* **ui/tabs:** use the state api instead of passing parameters to get the data ([bf31e91](https://github.com/tks18/streamlit-synthetic-data/commit/bf31e917e9dbdbba676515d6ad039a13ed4840d7))
+* **ui:** refactor to use the updated function signature ([4775581](https://github.com/tks18/streamlit-synthetic-data/commit/477558183072a20c0661e0b862e3741ad67ca80d))
+
 ## [0.5.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.4.0...v0.5.0) (2025-10-04)
 
 

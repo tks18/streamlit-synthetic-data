@@ -1,7 +1,11 @@
 from countryinfo import CountryInfo
+import streamlit as st
+
+from typing import Dict
 
 
-def get_country_states_dict():
+@st.cache_data
+def get_country_states_dict() -> Dict[str, list[str]]:
     """
     Returns a dictionary mapping countries to their states/provinces.
     """

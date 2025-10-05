@@ -26,7 +26,7 @@ def render_sidebar():
             'End Date', key='key_end_date')
         freq = st.selectbox(
             'Frequency', ['ME', 'W', 'D'], help="ME=Month-end, W=Week-end, D=Day", key='key_freq')
-        seed = int(st.number_input('Seed', key='key_seed'))
+        seed = int(st.number_input('Seed', step=1, key='key_seed'))
         faker_locale = st.selectbox(
             'Faker locale', ['en_US', 'en_IN', 'en_GB', 'fr_FR'], key='key_faker_locale')
         st.markdown("---")
@@ -62,6 +62,15 @@ def render_sidebar():
             st.download_button('Download Profile',
                                json.dumps(profile_dump), 'profile_dump.json', 'application/json')
 
+        st.markdown('---')
+        st.header('Other Customizations')
+        total_customers = int(st.number_input(
+            'Total Customers', step=1, key='key_total_customers'))
+        total_vendors = int(st.number_input(
+            'Total Vendors', step=1, key='key_total_vendors'))
+        total_assets = int(st.number_input(
+            'Total Assets', step=1, key='key_total_assets'))
+
         return {
             'industry': industry,
             'products': products,
@@ -72,5 +81,8 @@ def render_sidebar():
             'seed': seed,
             'faker_locale': faker_locale,
             'outlier_freq': outlier_freq,
-            'outlier_mag': outlier_mag
+            'outlier_mag': outlier_mag,
+            'total_customers': total_customers,
+            'total_vendors': total_vendors,
+            'total_assets': total_assets
         }

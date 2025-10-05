@@ -1,9 +1,20 @@
 import os
 import sys
 import json
+from typing import Any, List, Tuple, Dict
 import pandas as pd
+import streamlit as st
 
 from app.helpers.countries import get_country_states_dict
+from app.types import TIndustryConfig
+
+
+@st.cache_data
+def load_industry_kpi() -> Dict[str, TIndustryConfig]:
+    with open(INDUSTRY_KPIS_DIR, "r", encoding="utf-8") as f:
+        dump = json.load(f)
+    return dump
+
 
 # ----------------------------
 # Config & folders
@@ -25,8 +36,7 @@ DEFAULT_START_DATE = "2020-01-01"
 DEFAULT_END_DATE = "2022-12-31"
 
 # Load JSON
-with open(INDUSTRY_KPIS_DIR, "r", encoding="utf-8") as f:
-    INDUSTRY_KPIS = json.load(f)
+INDUSTRY_KPIS = load_industry_kpi()
 
 DEFAULT_REGIONS = get_country_states_dict()
 
@@ -45,7 +55,7 @@ DEF_OUTLIER_MAG = 2
 DEF_START_DATE = pd.to_datetime(DEFAULT_START_DATE).date()
 DEF_END_DATE = pd.to_datetime(DEFAULT_END_DATE).date()
 
-PROFILE_CONFIG = [
+PROFILE_CONFIG: List[Tuple[str, str, Any]] = [
     ('key_industry', 'industry', DEF_INDUSTRY),
     ('key_products', 'products', DEF_PRODUCTS),
     ('key_countries', 'countries', list(DEFAULT_REGION_CHOICE.keys())),
@@ -57,5 +67,14 @@ PROFILE_CONFIG = [
     ('key_outlier_freq', 'outlier_frequency', DEF_OUTLIER_FREQ),
     ('key_outlier_mag', 'outlier_magnitude', DEF_OUTLIER_MAG),
     ('key_custom_columns', 'custom_columns', {}),
-    ('key_scenarios', 'scenarios', [])
+    ('key_scenarios', 'scenarios', []),
+    ('key_total_customers', 'total_customers', 200),
+    ('key_total_vendors', 'total_vendors', 500),
+    ('key_total_assets', 'total_assets', 500),
+]
+
+STATE_CONFIG: List[Tuple[str, str, Any]] = [
+    *PROFILE_CONFIG.copy(),
+    ('country_config', 'country_config', DEFAULT_REGIONS),
+    ('industry_kpi', 'industry_kpi', INDUSTRY_KPIS)
 ]

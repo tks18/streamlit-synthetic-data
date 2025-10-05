@@ -1,17 +1,25 @@
+from typing import Dict
+from faker import Faker
 import pandas as pd
 import numpy as np
 import uuid
 
 from app.helpers.config import DEFAULT_START_DATE, DEFAULT_END_DATE
-from app.helpers.general import set_seed
+from app.mods import inject_outliers_vectorized
+from app.types import TAppStateConfig
 
 
-def generate_ppe_register(n_assets=200, start_date=None, end_date=None, countries=None, default_regions=None, faker=None, seed=42):
-    faker = faker or set_seed(seed)
-    countries = countries or ["India"]
-    default_regions = default_regions or {"India": ["Karnataka"]}
+def generate_ppe_register(state_config: TAppStateConfig, faker: Faker = Faker(), generated: Dict[str, pd.DataFrame] = {}):
+    seed = state_config["seed"]
+    start_date = pd.to_datetime(state_config["start_date"])
+    end_date = pd.to_datetime(state_config["end_date"])
+    total_assets = state_config["total_assets"]
+    countries = state_config["countries"]
+    default_regions = state_config["country_config"]
+    outlier_freq = state_config["outlier_frequency"]
+    outlier_mag = state_config["outlier_magnitude"]
     rows = []
-    for _ in range(n_assets):
+    for _ in range(total_assets):
         acq_date = faker.date_between(start_date=start_date, end_date=end_date) if start_date and end_date else faker.date_between(
             start_date=DEFAULT_START_DATE, end_date=DEFAULT_END_DATE)
         cost = float(round(np.random.randint(50000, 5000000), 2))
@@ -29,4 +37,7 @@ def generate_ppe_register(n_assets=200, start_date=None, end_date=None, countrie
             "Country": country, "Region": region,
             "Department": np.random.choice(["Finance", "Ops", "Sales", "R&D"])
         })
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    df = inject_outliers_vectorized(
+        df, ['Cost'], freq=outlier_freq, mag=outlier_mag, seed=seed+2)
+    return df

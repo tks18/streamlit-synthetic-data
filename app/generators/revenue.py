@@ -1,13 +1,26 @@
+from typing import Dict
+from faker import Faker
 import pandas as pd
 import numpy as np
 import uuid
 
-from app.helpers.general import date_range, set_seed
+from app.mods import inject_outliers_vectorized
+from app.helpers.general import date_range
+from app.types import TAppStateConfig
 
 
-def generate_revenue_invoices(products, start, end, freq, customers_df, industry, faker=None, seed=42, invoice_per_product_per_period=5):
-    faker = faker or set_seed(seed)
-    dates = date_range(start, end, freq)
+def generate_revenue_invoices(state_config: TAppStateConfig, faker: Faker = Faker(), generated: Dict[str, pd.DataFrame] = {}):
+    seed = state_config["seed"]
+    industry = state_config["industry"]
+    products = state_config["products"]
+    start_date = state_config["start_date"]
+    end_date = state_config["end_date"]
+    freq = state_config["frequency"]
+    dates = date_range(start_date, end_date, freq)
+    customers_df = generated.get("Customer_Master", pd.DataFrame())
+    outlier_freq = state_config["outlier_frequency"]
+    outlier_mag = state_config["outlier_magnitude"]
+    invoice_per_product_per_period = np.random.randint(10, 20)
     rows = []
     if customers_df.empty:
         return pd.DataFrame()
@@ -45,6 +58,8 @@ def generate_revenue_invoices(products, start, end, freq, customers_df, industry
                     "PaidAmount": float(round(paid_amount, 2)), "PaymentStatus": pay_flag
                 })
     df = pd.DataFrame(rows)
+    df = inject_outliers_vectorized(
+        df, ['InvoiceAmount'], freq=outlier_freq, mag=outlier_mag, seed=seed)
     if not df.empty:
         df["Outstanding"] = df["InvoiceAmount"] - df["PaidAmount"]
     return df

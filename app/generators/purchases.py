@@ -1,13 +1,26 @@
+from typing import Dict
+from faker import Faker
 import pandas as pd
 import numpy as np
 import uuid
 
-from app.helpers.general import date_range, set_seed
+from app.helpers.general import date_range
+from app.mods import inject_outliers_vectorized
+from app.types import TAppStateConfig
 
 
-def generate_purchases(vendors_df, products, start, end, freq, industry, faker=None, seed=42, purchases_per_period=3):
-    faker = faker or set_seed(seed)
-    dates = date_range(start, end, freq)
+def generate_purchases(state_config: TAppStateConfig, faker: Faker = Faker(), generated: Dict[str, pd.DataFrame] = {}):
+    seed = state_config["seed"]
+    industry = state_config["industry"]
+    products = state_config["products"]
+    start_date = state_config["start_date"]
+    end_date = state_config["end_date"]
+    freq = state_config["frequency"]
+    outlier_freq = state_config["outlier_frequency"]
+    outlier_mag = state_config["outlier_magnitude"]
+    dates = date_range(start_date, end_date, freq)
+    vendors_df = generated.get("Vendor_Master", pd.DataFrame())
+    purchases_per_period = np.random.randint(10, 20)
     rows = []
     if vendors_df.empty:
         return pd.DataFrame()
@@ -22,4 +35,7 @@ def generate_purchases(vendors_df, products, start, end, freq, industry, faker=N
                 "VendorType": vend.VendorType, "Country": vend.Country, "Region": vend.Region,
                 "PurchaseAmount": float(np.random.randint(2000, 250000))
             })
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    df = inject_outliers_vectorized(
+        df, ['PurchaseAmount'], freq=outlier_freq, mag=outlier_mag, seed=seed+3)
+    return df

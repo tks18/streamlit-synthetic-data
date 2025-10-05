@@ -7,84 +7,36 @@ import io
 from app.helpers.general import set_seed
 from app.helpers.config import DEFAULT_REGIONS
 from app.helpers.pd import apply_custom_columns_vectorized
-import app.generators as generators
+from app.generators import generator_config
+from app.helpers.state import get_state_config
 import app.mods as scenarios
 
 
-def render_generate_download_tab(tab_obj: delta_generator.DeltaGenerator, DATASET_OPTIONS, seed, faker_locale, country_choices, products, start_date, end_date, freq, industry, outlier_freq, outlier_mag):
+def render_generate_download_tab(tab_obj: delta_generator.DeltaGenerator):
     with tab_obj:
+        state_config = get_state_config()
+
+        seed = state_config["seed"]
+        faker_locale = state_config["faker_locale"]
+
         st.header('Generate & Download')
         st.sidebar.markdown('---')
         st.sidebar.header('Generate Datasets')
         datasets_to_gen = st.sidebar.multiselect(
-            'Datasets to generate', DATASET_OPTIONS, default=DATASET_OPTIONS)
+            'Datasets to generate', list(generator_config.keys()), default=list(generator_config.keys()))
 
         if st.sidebar.button('🚀 Generate Data Now', use_container_width=True, type="primary"):
             with st.spinner('Generating datasets... this may take a moment.'):
                 faker = set_seed(seed, locale=faker_locale)
                 generated = {}
 
-                # Masters first
-                cust_df = generators.generate_customer_master(
-                    300, country_choices, DEFAULT_REGIONS, faker, seed)
-                if 'Customer_Master' in datasets_to_gen:
-                    generated['Customer_Master'] = apply_custom_columns_vectorized(
-                        cust_df.copy(), 'Customer_Master')
-
-                vend_df = generators.generate_vendor_master(
-                    200, country_choices, DEFAULT_REGIONS, faker, seed+1)
-                if 'Vendor_Master' in datasets_to_gen:
-                    generated['Vendor_Master'] = apply_custom_columns_vectorized(
-                        vend_df.copy(), 'Vendor_Master')
-
-                # Transactions that depend on masters
-                if 'Revenue_Invoices' in datasets_to_gen:
-                    rev = generators.generate_revenue_invoices(
-                        products, start_date, end_date, freq, cust_df, industry, faker, seed)
-                    rev = scenarios.inject_outliers_vectorized(
-                        rev, ['InvoiceAmount'], freq=outlier_freq, mag=outlier_mag, seed=seed)
-                    generated['Revenue_Invoices'] = apply_custom_columns_vectorized(
-                        rev, 'Revenue_Invoices')
-
-                if 'Debtors_Aggregated' in datasets_to_gen:
-                    inv_src = generated.get('Revenue_Invoices', pd.DataFrame())
-                    debt = generators.generate_debtors_from_invoices(
-                        inv_src, freq='M')
-                    debt = scenarios.inject_outliers_vectorized(
-                        debt, ['ClosingBalance'], freq=outlier_freq, mag=outlier_mag, seed=seed)
-                    generated['Debtors_Aggregated'] = apply_custom_columns_vectorized(
-                        debt, 'Debtors_Aggregated')
-
-                if 'Purchases' in datasets_to_gen:
-                    purch = generators.generate_purchases(
-                        vend_df, products, start_date, end_date, freq, industry, faker, seed+3)
-                    purch = scenarios.inject_outliers_vectorized(
-                        purch, ['PurchaseAmount'], freq=outlier_freq, mag=outlier_mag, seed=seed+3)
-                    generated['Purchases'] = apply_custom_columns_vectorized(
-                        purch, 'Purchases')
-
-                # Other datasets
-                if 'PPE_Register' in datasets_to_gen:
-                    ppe = generators.generate_ppe_register(
-                        300, start_date, end_date, country_choices, DEFAULT_REGIONS, faker, seed+2)
-                    ppe = scenarios.inject_outliers_vectorized(
-                        ppe, ['Cost'], freq=outlier_freq, mag=outlier_mag, seed=seed+2)
-                    generated['PPE_Register'] = apply_custom_columns_vectorized(
-                        ppe, 'PPE_Register')
-
-                if 'Inventory' in datasets_to_gen:
-                    inv = generators.generate_inventory_snapshots(
-                        products, start_date, end_date, freq, seed+4)
-                    inv = scenarios.inject_outliers_vectorized(
-                        inv, ['InventoryValue'], freq=outlier_freq, mag=outlier_mag, seed=seed+4)
-                    generated['Inventory'] = apply_custom_columns_vectorized(
-                        inv, 'Inventory')
-
-                if 'Operational' in datasets_to_gen:
-                    op = generators.generate_operational_dataset(
-                        industry, start_date, end_date, freq, None, country_choices, DEFAULT_REGIONS, faker, seed+10)
-                    generated['Operational'] = apply_custom_columns_vectorized(
-                        op, 'Operational')
+                for dskey, ds_generator in generator_config.items():
+                    if dskey in datasets_to_gen:
+                        df = ds_generator(
+                            state_config, faker, generated)
+                        generated[dskey] = df
+                        generated[dskey] = apply_custom_columns_vectorized(
+                            df, dskey)
 
                 # Apply scenarios
                 for sc in st.session_state.key_scenarios:
