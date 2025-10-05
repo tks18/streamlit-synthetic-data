@@ -32,7 +32,7 @@ def generate_purchases(state_config: TAppStateConfig, faker: Faker = Faker(), ge
             rows.append({
                 "Industry": industry, "Product": np.random.choice(products), "Date": invoice_date.date(),
                 "PurchaseInvoiceID": uuid.uuid4().hex[:12], "VendorID": vend.VendorID,
-                "VendorType": vend.VendorType, "Country": vend.Country, "Region": vend.Region,
+                "VendorType": vend.VendorType, "Country": vend.Country, "State": vend.State,
                 "PurchaseAmount": float(np.random.randint(2000, 250000))
             })
     df = pd.DataFrame(rows)

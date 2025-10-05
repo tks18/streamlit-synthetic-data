@@ -27,7 +27,7 @@ def generate_operational_dataset(state_config: TAppStateConfig, faker: Faker, ge
         region = np.random.choice(
             default_regions.get(country, ["Unknown"]))
         row = {"Industry": industry, "Date": d.date(
-        ), "Country": country, "Region": region}
+        ), "Country": country, "State": region}
         for cfg in kpi_template:
             cname = cfg.get("name", "Unknown")
             ctype = cfg.get("type", "range")
