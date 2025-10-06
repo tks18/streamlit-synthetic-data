@@ -14,7 +14,6 @@ def render_sidebar():
             INDUSTRY_KPIS.keys()), key='key_industry')
         products_str = INDUSTRY_KPIS.get(industry, {}).get(
             "products", ["Product A", "Product B"])
-        st.session_state.key_products = products_str
         products = st.multiselect(
             'Products', options=products_str, accept_new_options=True, key='key_products')
 
