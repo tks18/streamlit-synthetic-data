@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.7.1](https://github.com/tks18/streamlit-synthetic-data/compare/v0.7.0...v0.7.1) (2025-10-06)
+
+
+### Bug Fixes 🛠
+
+* **generators:** fix vendor master with proper column name ([a537511](https://github.com/tks18/streamlit-synthetic-data/commit/a53751183338c99673d821336278b6567c08d764))
+* **ui/sidebar:** fix unable to add new products in the sidebar ([f6bec37](https://github.com/tks18/streamlit-synthetic-data/commit/f6bec3781f918bae7cc89f4c10c1376ce40f7286))
+
 ## [0.7.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.6.0...v0.7.0) (2025-10-05)
 
 
