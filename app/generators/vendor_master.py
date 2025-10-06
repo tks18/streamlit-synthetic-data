@@ -123,7 +123,7 @@ def generate_vendor_master(state_config: TAppStateConfig, faker: Faker = Faker()
             "Website": f"www.{domain}",
             "Country": country,
             "State": region,
-            "SupplierCategory": supplier_category,
+            "VendorType": supplier_category,
             "BusinessType": business_type,
             "ListedFlag": listed_flag,
             "ListingStatus": listing_status,
