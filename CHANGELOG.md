@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.8.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.7.1...v0.8.0) (2025-10-08)
+
+
+### Bug Fixes 🛠
+
+* **generators:** customer master - update the UUID to 8 integers ([bbdcb80](https://github.com/tks18/streamlit-synthetic-data/commit/bbdcb80707adcae97740c902b34fc3518cc6e381))
+
+
+### Features 🔥
+
+* **generators:** debtors - add various numerical / categorical synthetic fields for analysis ([fe5f9dd](https://github.com/tks18/streamlit-synthetic-data/commit/fe5f9dd1ef64283d3e205272c9dba8ab1736cf94))
+* **generators:** inventory - various new fields for analysis ([f7e1d98](https://github.com/tks18/streamlit-synthetic-data/commit/f7e1d98568a3a4b5c07e89ea04051f119225079c))
+* **generators:** ppe - various new fields for analysis ([8c4a62f](https://github.com/tks18/streamlit-synthetic-data/commit/8c4a62f0498556079dc1ee24d87509445d76fe8d))
+* **generators:** purchases / revenue / vendor master - fix the uuid to int 8 digits ([a628326](https://github.com/tks18/streamlit-synthetic-data/commit/a628326db00beefccda52470eefeb9a203c1bf32))
+
 ### [0.7.1](https://github.com/tks18/streamlit-synthetic-data/compare/v0.7.0...v0.7.1) (2025-10-06)
 
 

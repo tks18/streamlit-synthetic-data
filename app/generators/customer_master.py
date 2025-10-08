@@ -124,7 +124,7 @@ def generate_customer_master(state_config: TAppStateConfig, faker: Faker = Faker
         customer_origin = "India" if is_indian else "Outside India"
 
         rows.append({
-            "CustomerID": f"CUST_{uuid.uuid4().hex[:8]}",
+            "CustomerID": f"CUST_{str(uuid.uuid4().int)[:8]}",
             "CustomerName": company_name,
             "ContactPerson": contact_name,
             "Email": email,
