@@ -115,7 +115,7 @@ def generate_vendor_master(state_config: TAppStateConfig, faker: Faker = Faker()
         vendor_origin = "India" if is_indian else "Outside India"
 
         rows.append({
-            "VendorID": f"VEND_{uuid.uuid4().hex[:8]}",
+            "VendorID": f"VEND_{str(uuid.uuid4().int)[:8]}",
             "VendorName": company_name,
             "ContactPerson": contact_name,
             "Email": email,

@@ -51,7 +51,7 @@ def generate_revenue_invoices(state_config: TAppStateConfig, faker: Faker = Fake
                     payment_date, paid_amount = pd.NaT, 0.0
                 rows.append({
                     "Industry": industry, "Product": product, "Date": invoice_date.date(),
-                    "InvoiceID": uuid.uuid4().hex[:12], "CustomerID": cust.CustomerID,
+                    "InvoiceID": str(uuid.uuid4().int)[:12], "CustomerID": cust.CustomerID,
                     "CustomerSegment": cust.CustomerSegment, "Country": cust.Country, "State": cust.State,
                     "InvoiceAmount": float(amt), "DueDate": due_date.date(),
                     "PaymentDate": (payment_date.date() if pd.notna(payment_date) else pd.NaT),
