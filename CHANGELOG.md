@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.8.1](https://github.com/tks18/streamlit-synthetic-data/compare/v0.8.0...v0.8.1) (2025-10-11)
+
+
+### Features 🔥
+
+* **generators:** update revenue generator with more robust functionalities ([852b436](https://github.com/tks18/streamlit-synthetic-data/commit/852b43647379a8326cabdb4c9e834052fee7eb20))
+* **generators:** update the purchase generator with more robust functionalities ([c2a55ba](https://github.com/tks18/streamlit-synthetic-data/commit/c2a55baa66ef8412284891311f14cfbed845a41b))
+
 ## [0.8.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.7.1...v0.8.0) (2025-10-08)
 
 
