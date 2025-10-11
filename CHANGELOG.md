@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.9.0](https://github.com/tks18/streamlit-synthetic-data/compare/v0.8.1...v0.9.0) (2025-10-11)
+
+
+### Features 🔥
+
+* **mods:** update correlation & outliers modifiers with vectorized approach ([cb81014](https://github.com/tks18/streamlit-synthetic-data/commit/cb81014ff7577b79f9a09aca5f276cbc6a3d0d8d))
+
 ### [0.8.1](https://github.com/tks18/streamlit-synthetic-data/compare/v0.8.0...v0.8.1) (2025-10-11)
 
 
